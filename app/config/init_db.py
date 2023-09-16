@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.crud.user import user as user_db
 from app.crud.permissions import group as group_db
 from app.schemas.user import UserCreate
-
+from fastapi import HTTPException
 from app.schemas.permissions import GroupCreate
 from app.config.settings import settings
 
@@ -41,4 +41,7 @@ def init_db(db: Session) -> None:
         )
         group = group_db.create(db, obj_in=group_in)  # noqa: F841
 
-    group_db.add_user_to_group(db, group_id=group.id, user_id=user.id)
+    try:
+        group_db.add_user_to_group(db, group_id=group.id, user_id=user.id)
+    except HTTPException as e:
+        pass

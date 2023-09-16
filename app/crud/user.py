@@ -11,7 +11,7 @@ from app.core.security import get_hashed_password,verify_password
 class UserRepo(CRUDBase[User, UserCreate, UserUpdate]):
 
     def get_by_email(self, db:Session, *, email : str) -> Optional[User]:
-        return db.query(User).filter(User.email==email).first()
+        return db.query(self.model).filter(self.model.email==email).first()
 
     def authenticate(self, db: Session, *, email : str, password : str) -> Optional[User]:
         user_in_db = self.get_by_email(db, email=email)

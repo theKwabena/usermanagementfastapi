@@ -46,6 +46,7 @@ services:
       - .env
     volumes:
       - ./:/home/app
+    
 
   db:
     image: postgres:14.3-alpine
@@ -58,7 +59,7 @@ services:
       - "5432:5432"
     volumes:
       - db-postgres:/var/lib/postgresql/data
-
+    
 
 volumes:
   db-postgres:

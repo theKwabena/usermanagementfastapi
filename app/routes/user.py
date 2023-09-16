@@ -1,6 +1,6 @@
 from uuid import UUID
 from typing import Annotated
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy.orm import Session
 from app.core.dependencies import get_db, get_current_user, PermissionChecker
 from app.crud.user import user
@@ -35,8 +35,12 @@ def create_user(data: UserCreate, database: Session = Depends(get_db)):
             response_model=UserResponse,
             dependencies = [Depends(PermissionChecker([admin_can_create]))]
             )
-def get_user_by_id(user_id: UUID,    current_user: Annotated[User, Depends(get_current_user)], database: Session = Depends(get_db)):
-    return user.get(id=user_id, db=database)
+def get_user_by_id(user_id: UUID, database: Session = Depends(get_db)):
+    user_in_db = user.get(id=user_id, db=database)
+    if not user_in_db:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User with id does not exist")
+    
+    return user_in_db
 
 
 @router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)

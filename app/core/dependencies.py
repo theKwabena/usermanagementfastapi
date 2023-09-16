@@ -31,7 +31,6 @@ def get_db() -> Generator:
 
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(reuseable_oauth)) -> User:
-
     try:
         payload = jwt.decode(
             token, settings.SECRET_KEY, algorithms=[ALGORITHM]
@@ -59,7 +58,6 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(reuseab
     return user
 
 
-
 class PermissionChecker:
     def __init__(self, permissions_required: List[Union[Role, Group]]):
         self.permissions_required = permissions_required
@@ -69,10 +67,9 @@ class PermissionChecker:
         for role in user.roles:
             permissions.add(role)
 
-        for group in user.groups:
-            for role in group.roles:
-                permissions.add(role)
-        print(permissions)
+        # for group in user.groups:
+        #     for role in group.roles:
+        #         permissions.add(role)
         return list(permissions)
 
     def __call__(self, user: User = Depends(get_current_user)):
@@ -82,14 +79,18 @@ class PermissionChecker:
         if not user_groups and user_roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
-                detail="Hey enough permissions to access this resource")
+                detail="Not enough permissions to access this resource")
 
         for permission_required in self.permissions_required:
-            if permission_required in self.get_all_roles(user):
+            if isinstance(permission_required, Group):  # Check if it's an instance of Group and check name
+                if permission_required.name not in [group.name for group in user_groups]:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail=f"Not enough permissions to access this resource.")
+            # check the  roles, and check if the group contains the role required
+            elif permission_required in self.get_all_roles(user):
                 raise HTTPException(
                     status_code=status.HTTP_403_FORBIDDEN,
                     detail="Not enough permissions to access this resource")
 
         return user
-
-

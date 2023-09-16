@@ -23,4 +23,4 @@ class RoleResponse(Role):
 
 class GroupResponse(Group):
     id: int
-    roles: list[RoleResponse]
+    roles: list[Role]

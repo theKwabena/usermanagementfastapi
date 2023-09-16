@@ -2,7 +2,7 @@ from uuid import UUID
 from typing import Annotated
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
-from app.core.dependencies import get_db, get_current_user, PermissionChecker, admin_create_role
+from app.core.dependencies import get_db, get_current_user, PermissionChecker
 from app.crud.user import user
 from app.crud.permissions import role, group
 
@@ -33,7 +33,7 @@ def create_user(data: UserCreate, database: Session = Depends(get_db)):
 @router.get("/{user_id}",
             status_code=status.HTTP_200_OK,
             response_model=UserResponse,
-            dependencies = [Depends(PermissionChecker([admin_create_role]))]
+            dependencies = [Depends(PermissionChecker([admin_can_create]))]
             )
 def get_user_by_id(user_id: UUID,    current_user: Annotated[User, Depends(get_current_user)], database: Session = Depends(get_db)):
     return user.get(id=user_id, db=database)

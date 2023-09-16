@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import List, Union
+from typing import List, Union, Optional
 
 from pydantic import BaseModel, constr, EmailStr
 from enum import Enum
@@ -27,10 +27,6 @@ class UserResponse(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    first_name: constr(
-        min_length=2, max_length=255
-    ) | None = None
-    last_name: constr(
-        min_length=2, max_length=255
-    ) | None = None
+    first_name: Optional[constr(min_length=2, max_length=255) ]  = None
+    last_name:Optional[constr(min_length=2, max_length=255)]  = None
     email: EmailStr

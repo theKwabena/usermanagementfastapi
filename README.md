@@ -25,12 +25,9 @@ docker-compose up --build
 
 * Now you can open your browser and interact with these URLs:
 
+Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost:8000/docs
 
-Backend, JSON based web API based on OpenAPI: http://localhost/api/
-
-Automatic interactive documentation with Swagger UI (from the OpenAPI backend): http://localhost/docs
-
-Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost/redoc
+Alternative automatic documentation with ReDoc (from the OpenAPI backend): http://localhost:8000/redoc
 
 **Note**: The first time you start your stack, it might take a minute for it to be ready. While the backend waits for the database to be ready and configures everything. You can check the logs to monitor it.
 

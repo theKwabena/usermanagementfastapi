@@ -95,7 +95,7 @@ const rules = {
 const v$ = useVuelidate(rules, user)
 
 const get_user = useAuthStore()
-
+console.log(get_user)
 async function login(){
     console.log('logins')
     const isFormCorrect = await v$.value.$validate()

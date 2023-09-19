@@ -12,8 +12,8 @@
               <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
           </v-avatar>
           <div class="px-4 pt-6">
-            <h6 class="text-h6 w-25 text-no-wrap"> Geroge Andam</h6>
-            <p class="text-h6 w-25 mt-n2 text-subtitle-1 text-no-wrap"> georgemills@gmail.com</p>
+            <h6 class="text-h6 w-25 text-no-wrap"> {{ user.first_name }}</h6>
+            <p class="text-h6 w-25 mt-n2 text-subtitle-1 text-no-wrap"> {{ user.email }}</p>
           </div>
         </div>
         <v-divider class="d-md-none" />
@@ -72,6 +72,11 @@
 
 <script setup>
 import {ref} from 'vue'
+import { useAuthStore } from '@/store/auth.store';
 const dialog = ref(false)
+
+const auth = useAuthStore()
+const user  = auth.user
+
 </script>
 

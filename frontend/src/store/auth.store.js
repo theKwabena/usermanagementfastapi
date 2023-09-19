@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia';
-
+import axios from "axios"
 import {ref, reactive} from 'vue'
 import { useAsyncState } from '@vueuse/core'
 
-const baseUrl = `${import.meta.env.BACKEND_API_URL}/`;
+const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
 
 // export const useAuthStore = defineStore({
 //     id: 'auth',
@@ -36,18 +36,38 @@ const baseUrl = `${import.meta.env.BACKEND_API_URL}/`;
 
 
 export const useAuthStore = defineStore('auth', ()=>{
-    const { state, isReady, isLoading, execute,error } = useAsyncState(
-        async (args) => {
-          // Perform your asynchronous operation using the dynamic data passed in args
-          // For example, you can make an Axios request with a dynamic URL
-          const response = await axios[args.method](`${baseUrl}/${args.path}`,args.payload, {withCredentials: true, credentials: 'include'});
-          return response.data;
-        },
-        null, // Set initial state if needed
-        {
-          immediate: false, // Do not execute immediately
-        },
-    );
+  const loading = ref(false)
+  const ready = ref(false)
+  const user = ref(null)
+  const error = ref(null)
 
-    return {state, isReady, isLoading, execute, error}
+  async function login(payload){
+
+    loading.value =true
+    error.value = false;
+
+    const params = new URLSearchParams();
+
+    params.append('username', payload.username)
+    params.append('password', payload.password)
+
+    try {
+        await axios.post(`${baseUrl}/login/access-token`, params, {withCredentials: true, credentials:'include'})
+        .then(response => {
+          console.log(ready)
+          ready.value  = true
+          user.value = response.data.user
+          console.log(user)
+        }).catch(err => {
+          error.value = err.message
+        }).finally(resp => {
+          loading.value = false
+       })
+      } catch (e){
+        loading.value = false
+        error.value = e 
+      }
+  }
+
+  return {user, loading, ready, error, login}
 })

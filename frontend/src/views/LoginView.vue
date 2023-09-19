@@ -27,10 +27,8 @@
                     Sign in with Facebook
                     </v-btn>
                 </div>
+                
                 <div class="mb-12 log-width">
-                    <form>
-
-                    </form>
                     <h6 class="text-subtitle-1 text-medium-emphasis">Email</h6>
                     <v-text-field 
                         density="compact"  
@@ -55,7 +53,7 @@
                         @click:append-inner="visible = !visible"
                     ></v-text-field>
                     <div class="log-width w-100">
-                        <v-btn  elevation="0" class="bg-primary w-100" size="large" @click="login">
+                        <v-btn  elevation="0" class="bg-primary w-100" size="large" @click="login" :loading="get_user.loading">
                             Login
                         </v-btn>
                     </div>
@@ -74,9 +72,11 @@ import {ref, reactive} from 'vue'
 import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
 import { useAuthStore } from '@/store/auth.store';
+import { useRouter, useRoute } from 'vue-router'
 
+const router = useRouter()
 const visible = ref(false)
-
+      
 const user = reactive({
     email : '',
     password : ''
@@ -95,12 +95,24 @@ const rules = {
 const v$ = useVuelidate(rules, user)
 
 const get_user = useAuthStore()
+console.log(get_user.isLoading)
 
 async function login(){
-    console.log('logins')
     const isFormCorrect = await v$.value.$validate()
     if (!isFormCorrect) return
-    get_user.execute(0, {email: user.email, password:user.password})
+
+    await get_user.login({ username: user.email, password:user.password })
+    console.log(get_user.ready)
+
+    if(get_user.ready){
+        localStorage.setItem('token', get_user.user.access_token)
+        router.push(
+            {
+                name : 'Home'
+            }
+        )
+    }
+  
 }
 
 

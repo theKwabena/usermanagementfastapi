@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-row>
-            <v-col cols="8" md="8" sm="12" xs="12" order-sm="12">
+        <v-row class="d-flex justify-center">
+            <v-col cols="12" md="6" sm="12" xs="12" order="12">
                 <v-sheet class="py-8">
                     <div class="bg-formbg pa-10 rounded-lg">
                         <div class="">
@@ -10,7 +10,8 @@
                                     <div class="w-50 mr-2">
                                         <div class="">First Name</div>
                                         <v-text-field
-                                            v-model="state.firstName"
+                                        
+                                            v-model="user.first_name"
                                             variant="outlined"
                                             class=""
                                         ></v-text-field>
@@ -18,25 +19,27 @@
                                     <div class="w-50 ml-2">
                                         <div>Last Name</div>
                                         <v-text-field
-                                            v-model="state.firstName"
+                                            v-model="user.last_name"
                                             variant="outlined"
                                         ></v-text-field>
                                         </div>
                                     </div>
 
-                                <div >Phone Nummber</div>
-                                <v-text-field
-                                    v-model="state.firstName"
-                                    variant="outlined"
-                                ></v-text-field> 
+                                <div >Phone Number</div>
+                                <vue-tel-input  v-model="user.phone_number" mode="international" @validate="handleValidation" :class="inputClass" @on-input="handleInput" class="my-4 py-2"></vue-tel-input>
                                 <div >Email Address</div>
                                 <v-text-field
-                                    v-model="state.firstName"
+                                    v-model="user.email"
                                     variant="outlined"
                                 ></v-text-field> 
-                                <div >Password</div>
+                                <div >Old Password</div>
                                 <v-text-field
-                                    v-model="state.firstName"
+                                    v-model="user.password"
+                                    variant="outlined"
+                                ></v-text-field> 
+                                <div >New Password</div>
+                                <v-text-field
+                                    v-model="user.password"
                                     variant="outlined"
                                 ></v-text-field> 
 
@@ -50,17 +53,17 @@
                     </div>
                 </v-sheet>
             </v-col>
-            <v-col cols="4" md="4" sm="12" xs="12" order-sm="1" order-md="12">
-                <v-sheet class="py-8">
-                    <div class="bg-formbg rounded-lg pb-4">
+            <v-col cols="12" md="4" lg="4" xl="4" order-sm="1" order-md="12">
+                <v-sheet class="py-8 bg-formbg">
+                    <div class=" rounded-lg pb-4">
                         <div class="d-flex flex-column align-center pt-10">
                             <v-avatar color="grey" size="150">
                                 <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
                             </v-avatar>
                         </div>
                         <div class="mb-8 mt-4 text-center">
-                                <p> Emmanuel Abbey</p>
-                                <p>mail@test.com</p>
+                                <p> {{ full_name }}</p>
+                                <p>{{ user.email }}</p>
                         </div>
                         <!-- <v-divider/> -->
                         <!-- <div class="text-center">
@@ -84,16 +87,18 @@
 </template>
 
 <script setup>
-    import { reactive } from 'vue' // "from '@vue/composition-api'" if you are using Vue <2.7
+    import { reactive, computed } from 'vue' // "from '@vue/composition-api'" if you are using Vue <2.7
     import { useVuelidate } from '@vuelidate/core'
     import { required, email } from '@vuelidate/validators'
+    import { useAuthStore } from '@/store/auth.store';
+    import { VueTelInput } from 'vue-tel-input';
+    import 'vue-tel-input/vue-tel-input.css';
 
-    const state = reactive({
-      firstName: '',
-      lastName: '',
-      contact: {
-        email: ''
-      }
+    const user = useAuthStore().user
+    // const user = auth.user
+
+    const full_name = computed(()=>{
+        return `${user.first_name} ${user.last_name}`
     })
 
     const rules = {
@@ -104,8 +109,8 @@
         }
         }
 
-    const v$ = useVuelidate(rules, state)
-
+    const v$ = useVuelidate(rules, user)
+    console.log(user)
 </script>
 
 
@@ -124,7 +129,7 @@
     // background-color: red;
     // border: 1px solid #ECECEC;
     outline: noen;
-    padding: 0;
+    padding: 2;
   
 }
 
@@ -133,5 +138,8 @@
     --v-input-padding-top: 8px !important;
 }
 
+.vue-tel-input{
+    outline :red
+}
 
 </style>

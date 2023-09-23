@@ -16,6 +16,7 @@ import { registerPlugins } from '@/plugins'
 //fonts
 import "@/styles/settings.scss"
 
+
 const app = createApp(App)
 
 registerPlugins(app)

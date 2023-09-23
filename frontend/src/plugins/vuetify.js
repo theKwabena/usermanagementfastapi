@@ -10,7 +10,6 @@ import 'vuetify/styles'
 
 // Composables
 import { createVuetify } from 'vuetify'
-
 import {
   VDataTable,
   VDataTableServer,

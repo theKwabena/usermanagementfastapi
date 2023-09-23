@@ -6,6 +6,7 @@
 
 // Plugins
 import { loadFonts } from './webfontloader'
+import VueTelInput from 'vue-tel-input';
 import vuetify from './vuetify'
 import pinia from '../store'
 import router from '../router'
@@ -16,4 +17,5 @@ export function registerPlugins (app) {
     .use(vuetify)
     .use(router)
     .use(pinia)
+    .use(VueTelInput)
 }

@@ -6,7 +6,7 @@
   </v-row>
   <v-row class="position-absolute w-100" style="top: 40%; left:15%">
     <v-col cols="8">
-      <div class="d-flex justify-space-between align-center pt-10 flex-sm-column flex-md-row">
+      <div class="d-flex justify-space-between align-center pt-10 flex-column flex-md-row flex-lg-row">
         <div class="d-flex align-center">
           <v-avatar color="grey" size="150">
               <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
@@ -17,7 +17,7 @@
           </div>
         </div>
         <v-divider class="d-md-none" />
-        <div class="mt-md-4 mt-sm-10">
+        <div class="mt-md-4 mt-10 mt-lg-10 d-flex align-center">
           <v-btn elevation="0" rounded="xs" class="bg-primary mr-2" :to="{'name' : 'admin'}">
             Admin
           </v-btn>
@@ -35,14 +35,15 @@
               Confirm Account Deletion
             </v-card-title>
             <v-divider/>
+            <p class="text-center text-red" v-if="on_error">{{ on_error }}</p>
             <v-card-text>Are you sure you want to delete your account? This action cannnot is permanent</v-card-text>
            
             <v-card-actions class="pb-10 mt-5">
               <v-spacer></v-spacer>
-              <v-btn color="" class="mr-2" variant="outlined" @click="dialog=false">Cancel</v-btn>
-              <v-btn elevation="0" rounded="md" class="bg-red"  @click="dialog=false">
+              <v-btn elevation="0" rounded="md" class="bg-red"  @click="deleteUser">
                   Delete Account
               </v-btn>
+              <v-btn color="" class="mr-2" variant="outlined" @click="dialog=false">Cancel</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -73,10 +74,44 @@
 <script setup>
 import {ref} from 'vue'
 import { useAuthStore } from '@/store/auth.store';
+import {useDeleteUser} from "@/composables/admin/useUserActions.js"
+import {deleteSession} from "@/composables/useSession.js"
+import { useRouter, useRoute } from 'vue-router'
 const dialog = ref(false)
 
-const auth = useAuthStore()
-const user  = auth.user
+const user = useAuthStore().user
+const isLoading = ref()
+const on_error = ref('')
+const router = useRouter()
+const deleteUser = async () => {
+  const {error, success, loading } = await useDeleteUser(user.id)
+
+  if(loading.value){
+    isLoading.value = loading
+  }
+
+  if(success.value){
+    isLoading.value = loading.value
+    dialog.value = false
+
+    const deletedSession = deleteSession()
+    if (deleteSession){
+
+      router.push({name : 'login'})
+    }
+  }
+
+  if(error){
+    on_error.value = error
+  }
+
+}
+
+
+// const permissions = computed(()=>{
+
+// })
+
 
 </script>
 

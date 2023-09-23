@@ -1,18 +1,18 @@
 <template>
     <div class="pa-16">
         <v-row class="d-flex align-center justify-center">
-          <v-col cols="12">
+          <v-col cols="12" class="border-sm rounded-lg">
               <v-data-table
                 :headers="headers"
                 :items="users"
                 :sort-by="[{ key: 'name', order: 'asc' }]"
-                class="pa-8"
+                class="px-8 text-apptext"
               >
 
                 <template v-slot:top>
                   <v-toolbar flat class="bg-white">
                       
-                    <v-toolbar-title class="">Users</v-toolbar-title>
+                    <!-- <v-toolbar-title class="">Users</v-toolbar-title> -->
                     <v-spacer></v-spacer>
                     <v-dialog v-model="dialog" max-width="800px" persistent>
                       <template v-slot:activator="{ props }">
@@ -23,10 +23,11 @@
                       </template>
                       <v-card>
                         <form>
-                            <v-card-title class="pl-10 pt-4">
+                            <v-card-title class="pl-10">
                           <span class="text-h6">{{ formTitle }}</span>
                         </v-card-title>
                         <v-divider />
+                        <v-card-subtitle class="text-center pt-4 text-red" v-show="create_error" >{{ create_error }}</v-card-subtitle>
                         <v-card-text class="mt-n4">
                           <v-container>
                             <v-row>
@@ -106,7 +107,7 @@
                         </v-card-text>
                         <v-card-actions class="pb-10 mt-n5">
                           <v-spacer></v-spacer>
-                          <v-btn elevation="0" rounded="md" class="bg-red px-4"  @click="deleteUserConfirm">
+                          <v-btn elevation="0" rounded="md" class="bg-red px-4" :loading="isLoading"  @click="deleteUserConfirm(editedUser.id)">
                               Delete User
                           </v-btn>
                           <v-btn color="primary" class="mr-2" variant="outlined" @click="closeDelete">Cancel</v-btn>
@@ -165,13 +166,20 @@
      </div>
   </template>
   <script setup>
-  import { computed, nextTick, ref, watch } from 'vue'
+  import { computed, onMounted, ref, watch, nextTick } from 'vue'
   import { useVuelidate } from '@vuelidate/core'
   import { email, required, helpers, minLength } from '@vuelidate/validators'
+  import { useUserStore } from '@/store/user.store';
+  import {useDeleteUser, useCreateUser, useEditUser} from "@/composables/admin/useUserActions.js"
 
+
+  const user = useUserStore()
   const dialog = ref(false)
   const dialogDelete = ref(false)
-  
+  const $externalResults = ref({})
+
+  const isLoading = ref(null)
+
   const rules = {
     first_name: { 
         required: helpers.withMessage('First name cannot be empty', required),
@@ -181,12 +189,13 @@
         required : helpers.withMessage('Last name cannot be empty', required),
         minLength : minLength(2)
     },
-    email: { required, email },
+    email: {
+      required, email,
+     },
     
   }
 
-  
- 
+  const users = ref([])
   const headers = ref([
     {
       title: 'User',
@@ -198,50 +207,34 @@
     { title: 'Phone Number', key: 'phone',  width:"30%" },
     { title: 'Actions', key: 'actions', sortable: false, width:"140px" },
   ])
-  const users = ref([])
+
   const editedIndex = ref(-1)
 
   const editedUser = ref({
+    id : '',
     first_name : '',
     last_name : '',
     email : '',
     phone_number : ''
   })
+
   const defaultItem = ref({
+    id: '',
     irst_name : '',
     last_name : '',
     email : '',
     phone_number : ''
   })
 
-  const v$ = useVuelidate(rules, editedUser)
+  const v$ = useVuelidate(rules, editedUser, {$externalResults})
+
   const formTitle = computed(() => {
     return editedIndex.value === -1 ? 'Add New  User' : 'Edit User'
   })
-  function initialize () {
-    users.value = [
-      {
-        
-        first_name: 'Emmanuel',
-        last_name: 'Abbey',
-       
-        email : 'abbey@user.com',
-        phone_number : "+233546649873"
-      },
-      {
-        first_name: 'Mike',
-        last_name: 'Abbey',
-        email : 'abbey@user.com',
-        phone_number : "+233546649873"
-      },
-      
-    ]
-  }
 
-  
-  const formattedNames = computed(()=>{
-    return users.value;
-  })
+  function initialize () {
+    users.value = user.users
+  }
 
   function clear () {
     v$.value.$reset()
@@ -251,23 +244,34 @@
     }
   }
 
-
-
   function editUser (user) {
     editedIndex.value = users.value.indexOf(user)
     editedUser.value = Object.assign({}, user)
     console.log(editedUser.value.roles)
     dialog.value = true
   }
-  function deleteUser (user) {
+
+  async function deleteUser (user) {
     editedIndex.value = users.value.indexOf(user)
     editedUser.value = Object.assign({}, user)
     dialogDelete.value = true
   }
-  function deleteUserConfirm () {
-    users.value.splice(editedIndex.value, 1)
-    closeDelete()
+
+  async function deleteUserConfirm (user_id) {
+    const {error, success, loading } = await useDeleteUser(user_id)
+
+    if(loading.value){
+      isLoading.value = loading
+    }
+
+    if(success.value){
+      users.value.splice(editedIndex.value, 1)
+      isLoading.value = loading.value
+      closeDelete()
+    }
+
   }
+
   async function close () {
     clear()
     dialog.value = false
@@ -275,33 +279,120 @@
     editedUser.value = Object.assign({}, defaultItem.value)
     editedIndex.value = -1
   }
+
   async function closeDelete () {
+
     dialogDelete.value = false
     await nextTick()
     editedUser.value = Object.assign({}, defaultItem.value)
     editedIndex.value = -1
   
   }
- async function save () {
-    const isFormCorrect = await v$.value.$validate()
-    if (!isFormCorrect) return
-      // submit form
-    if (editedIndex.value > -1) {
-      Object.assign(users.value[editedIndex.value], editedUser.value)
-    } else {
-      users.value.push(editedUser.value)
+
+  // async function save () {
+  // v$.value.$clearExternalResults()
+  //   if (!await v$.value.$validate()) return
+  //     // submit form
+  //     if (editedIndex.value > -1) {
+  //       const {user, loading, success, error } = await useEditUser(editedUser.value.id, editedUser.value)
+        
+  //       loading.value ? isLoading.value = loading.value : null
+        
+  //       if(success.value){
+  //         Object.assign(users.value[editedIndex.value], user.value)
+  //         isLoading.value = loading.value
+  //         close()
+  //       }
+        
+  //       if(error.value){
+  //           if(error.value.includes('email')){
+  //             const errors = {
+  //               email : [error.value]
+  //             }
+  //             $externalResults.value = errors
+  //           }
+  //         }  
+  //     } 
+  //     else {
+  //         const {user, loading, success, error  } = await  useCreateUser(editedUser.value)
+
+  //         loading.value ? isLoading.value = loading.value : null
+
+  //         if(success.value){
+  //           console.log(user.value)
+  //           users.value.push(user.value)
+  //           close()
+  //         } 
+
+  //         if(error.value){
+  //           if(error.value.includes('email')){
+  //             const errors = {
+  //               email : [error.value]
+  //             }
+  //             $externalResults.value = errors
+  //           }
+  //         } 
+  //       }  
+  //   }
+
+  async function save() {
+    v$.value.$clearExternalResults();
+
+    if (!(await v$.value.$validate())) return;
+
+    const isEditing = editedIndex.value > -1;
+    const apiFunction = isEditing ? useEditUser : useCreateUser;
+    const apiPayload = editedUser.value;
+
+    isEditing ? undefined : delete apiPayload.id
+    
+    try {
+
+      let apiResponse;
+      if (isEditing) {
+            // Send the request without the 'id' when editing
+            apiResponse = await apiFunction(editedUser.value.id, apiPayload);
+        } else {
+            // Send the request with the complete payload when creating
+            apiResponse = await apiFunction(apiPayload);
+        }
+
+
+        const { user, loading, success, error } = apiResponse;
+       
+
+        loading.value && (isLoading.value = loading.value);
+
+        if (success.value) {
+            if (isEditing) {
+                Object.assign(users.value[editedIndex.value], user.value);
+            } else {
+                users.value.push(user.value);
+            }
+            close();
+        }
+
+        if (error.value && error.value.includes('email')) {
+            $externalResults.value = { email: [error.value] };
+        }
+    } catch (e) {
+        // Handle any unexpected errors here
+        console.error(e);
     }
-    close()
-  }
+}
+
+
   watch(dialog, val => {
     val || close()
   })
   watch(dialogDelete, val => {
     val || closeDelete()
   })
-  initialize()
 
-  console.log(editedUser.value.roles)
+  onMounted(async ()=>{
+    await user.getUsers()
+    initialize()
+  })
 </script>
 
 <style scoped lang="scss">

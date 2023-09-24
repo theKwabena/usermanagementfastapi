@@ -1,9 +1,9 @@
 <template>
     <v-container>
-        <v-row class="d-flex justify-center">
+        <v-row class="d-flex justify-center py-10">
             <v-col cols="12" md="6" sm="12" xs="12" order="12">
-                <v-sheet class="py-8">
-                    <div class="bg-formbg pa-10 rounded-lg">
+                <v-sheet class="py-8 bg-formbg">
+                    <div class="pa-10 rounded-lg">
                         <div class="">
                             <form class="text-apptext">
                                 <div class="d-flex justify-lg-space-between">
@@ -11,7 +11,7 @@
                                         <div class="">First Name</div>
                                         <v-text-field
                                         
-                                            v-model="user.first_name"
+                                            v-model="editUserForm.first_name"
                                             variant="outlined"
                                             class=""
                                         ></v-text-field>
@@ -19,27 +19,18 @@
                                     <div class="w-50 ml-2">
                                         <div>Last Name</div>
                                         <v-text-field
-                                            v-model="user.last_name"
+                                            v-model="editUserForm.last_name"
                                             variant="outlined"
                                         ></v-text-field>
                                         </div>
                                     </div>
 
                                 <div >Phone Number</div>
-                                <vue-tel-input  v-model="user.phone_number" mode="international" @validate="handleValidation" :class="inputClass" @on-input="handleInput" class="my-4 py-2"></vue-tel-input>
+                                <vue-tel-input  v-model="editUserForm.phone_number" mode="international" @validate="handleValidation" :class="inputClass" @on-input="handleInput" class="my-4 py-2"></vue-tel-input>
                                 <div >Email Address</div>
                                 <v-text-field
-                                    v-model="user.email"
-                                    variant="outlined"
-                                ></v-text-field> 
-                                <div >Old Password</div>
-                                <v-text-field
-                                    v-model="user.password"
-                                    variant="outlined"
-                                ></v-text-field> 
-                                <div >New Password</div>
-                                <v-text-field
-                                    v-model="user.password"
+                                    disabled
+                                    v-model="editUserForm.email"
                                     variant="outlined"
                                 ></v-text-field> 
 
@@ -54,29 +45,40 @@
                 </v-sheet>
             </v-col>
             <v-col cols="12" md="4" lg="4" xl="4" order-sm="1" order-md="12">
-                <v-sheet class="py-8 bg-formbg">
-                    <div class=" rounded-lg pb-4">
+                <v-sheet class="bg-formbg">
+                    <div class=" rounded-lg pb-0 position-relative">
                         <div class="d-flex flex-column align-center pt-10">
-                            <v-avatar color="grey" size="150">
-                                <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
+                            <v-avatar color="grey" size="150" class="d-flex flex-column justify-center align-center position-relative">
+                                <v-img cover :src="userProfilePicture"></v-img>
+                                <v-file-input
+                                    class="position-absolute overlay px-16 text-center"
+                                    style="bottom:0%; top:72%; left:1%"
+                                    v-model="editUserForm.profile_picture"
+                                   
+                                    accept="image/png, image/jpeg, image/bmp"
+                                    prepend-icon="mdi-camera"
+                                    variant="plain"
+                               ></v-file-input>
                             </v-avatar>
+                           
+                            <div class="overlay">
+                               
+                            </div>
                         </div>
                         <div class="mb-8 mt-4 text-center">
                                 <p> {{ full_name }}</p>
                                 <p>{{ user.email }}</p>
                         </div>
-                        <!-- <v-divider/> -->
-                        <!-- <div class="text-center">
+                        <v-divider/>
+                        <div class="text-center">
                             <v-btn  class="text-apptext text-subtitle-1 w-100"   size="x-large" variant="text"> Change Email</v-btn>
                         </div>
                         <v-divider/>
                         <div class="text-center">
-                            <v-btn  class="text-apptext text-subtitle-1 w-100" variant="text" size="x-large"> Reset Password</v-btn>
+                            <v-btn  class="text-apptext text-subtitle-1 w-100 rounded-b-lg" variant="text" size="x-large"> Reset Password</v-btn>
                         </div>
-                        <v-divider/>
-                        <div class="text-center">
-                            <v-btn  class="text-red text-subtitle-1 w-100" variant="text" size="x-large"> Delete Account</v-btn>
-                        </div> -->
+                      
+                        
                     </div>
                 </v-sheet>
             </v-col>
@@ -87,7 +89,7 @@
 </template>
 
 <script setup>
-    import { reactive, computed } from 'vue' // "from '@vue/composition-api'" if you are using Vue <2.7
+    import { reactive,ref, computed } from 'vue' // "from '@vue/composition-api'" if you are using Vue <2.7
     import { useVuelidate } from '@vuelidate/core'
     import { required, email } from '@vuelidate/validators'
     import { useAuthStore } from '@/store/auth.store';
@@ -96,11 +98,31 @@
 
     const user = useAuthStore().user
     // const user = auth.user
-
+    const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
     const full_name = computed(()=>{
         return `${user.first_name} ${user.last_name}`
     })
 
+   
+    const editUserForm = ref({
+        id : '',
+        first_name : '',
+        last_name : '',
+        phone_number : '',
+        profile_picture : ''
+    })
+
+    editUserForm.value = Object.assign({}, user)
+
+    const userProfilePicture = computed(()=>{
+        if (editUserForm.value.profile_picture){
+            console(editUserForm.value.profile_picture);
+            return  URL.createObjectURL(editUserForm.value.profile_picture);
+        } else {
+            return `${baseUrl}/${user.profile_img}`
+        }
+    })
+   
     const rules = {
         firstName: { required }, // Matches state.firstName
         lastName: { required }, // Matches state.lastName
@@ -128,7 +150,7 @@
 .v-field__input{
     // background-color: red;
     // border: 1px solid #ECECEC;
-    outline: noen;
+    outline: none;
     padding: 2;
   
 }
@@ -138,8 +160,23 @@
     --v-input-padding-top: 8px !important;
 }
 
-.vue-tel-input{
-    outline :red
+.vue-tel-input {
+    border-radius: 3px;
+    display: flex;
+    border: 1px solid #bbb;
+    text-align: left;
+    padding: 4px 0px 4px 0px;
 }
+
+.vue-tel-input:focus-within {
+    box-shadow: none;
+    border-color: rgb(156, 153, 153);
+    border-width:2px;
+}
+
+.overlay{
+    background-color: rgba(22, 22, 22, 0.8);
+}
+
 
 </style>

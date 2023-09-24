@@ -51,7 +51,7 @@ export const useAuthStore = defineStore('authoptions', {
     },
 
     async register(payload){
-      this.isLoading = false
+      this.isLoading = true
       this.on_error = false
       this.isReady = false
 
@@ -77,17 +77,38 @@ export const useAuthStore = defineStore('authoptions', {
     },
 
     async getUserProfile(){
+      console.log("Something will")
       await axios.get(`${baseUrl}/profile`,  {withCredentials: true, credentials:'include'})
       .then(response => {
         this.data = response.data
       })
-    }
+    },
+
+    async logout(){
+      this.isReady= false
+      this.isLoading = true
+      this.on_error = true
+  
+      try{
+        await axios.get(`${baseUrl}/logout`)
+      .then(response => {
+        Cookies.remove('is_Authenticated')
+        this.data = '' //storage is persisted in session. Alternatively clear session
+        this.isLoading = false
+        this.isReady = true
+      }).catch((err)=>{
+        this.on_error = err
+      })
+      } catch (e) {
+      this.isLoading = false
+      }
+    },
   
   },
 
   persist: {
-    storage : sessionStorage
-  },
+    storage: sessionStorage,
+  }
 })
 
 // export const useAuthStore = defineStore('auth', ()=>{

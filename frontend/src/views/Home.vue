@@ -7,27 +7,69 @@
   <v-row class="position-absolute w-100" style="top: 40%; left:15%">
     <v-col cols="8">
       <div class="d-flex justify-space-between align-center pt-10 flex-column flex-md-row flex-lg-row">
-        <div class="d-flex align-center">
-          <v-avatar color="grey" size="150">
+        <div class="d-flex align-center">w
+          <v-avatar color="grey" size="150" >
               <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
           </v-avatar>
-          <div class="px-4 pt-6">
-            <h6 class="text-h6 w-25 text-no-wrap"> {{ user.first_name }}</h6>
-            <p class="text-h6 w-25 mt-n2 text-subtitle-1 text-no-wrap"> {{ user.email }}</p>
+          <div class="px-4 pt-6 d-flex">
+            <div>
+              <h6 class="text-h6 w-25 text-no-wrap"> {{ user.first_name }} {{ user.last_name }}</h6>
+              <p class="text-h6 w-25 mt-n2 text-subtitle-1 text-no-wrap"> {{ user.email }}</p>
+            </div>
+            <div class="flex">
+              <v-menu  :close-on-content-click="false" transition="none">
+              <template v-slot:activator="{ props }">
+                <v-btn icon="mdi-dots-vertical" v-bind="props" variant="plain" color="black"></v-btn>
+              </template>
+
+              <v-list class="elevation-0 border-sm py-0 text-center">
+                    <v-btn variant="plain" :ripple="false" class="px-10 text-subtitle-1" :to="{name: 'edit-profile'}">Edit Profile</v-btn>
+                    <v-divider/>
+                    
+                    <v-dialog v-model="dialog" persistent width="500px">
+                      <template v-slot:activator="{ props }">
+                        <v-btn variant="plain" :ripple="false" v-bind="props" class="text-subtitle-1 text-red">Delete Profile</v-btn>
+                      </template>
+                      <v-card>
+                        <v-card-title class="text-h6">
+                          Confirm Account Deletion
+                        </v-card-title>
+                        <v-divider/>
+                        <p class="text-center text-red" v-if="on_error">{{ on_error }}</p>
+                        <v-card-text>Are you sure you want to delete your account? You cannot undo this action</v-card-text>
+                      
+                        <v-card-actions class="pb-10 mt-5">
+                          <v-spacer></v-spacer>
+                          <v-btn elevation="0" rounded="md" class="bg-red"  @click="deleteUser">
+                              Delete Account
+                          </v-btn>
+                          <v-btn color="" class="mr-2" variant="outlined" @click="dialog=false">Cancel</v-btn>
+                          <v-spacer></v-spacer>
+                        </v-card-actions>
+                      </v-card>
+                  </v-dialog>
+               
+              </v-list>
+            </v-menu>
+            </div>
           </div>
         </div>
+       
         <v-divider class="d-md-none" />
         <div class="mt-md-4 mt-10 mt-lg-10 d-flex align-center">
           <v-btn elevation="0" rounded="xs" class="bg-primary mr-2" :to="{'name' : 'admin'}">
             Admin
           </v-btn>
-          <v-btn elevation="0" rounded="xs" class="mr-2" variant="outlined" :to="{name: 'edit-profile'}">
+          <!-- <v-btn elevation="0" rounded="xs" class="mr-2" variant="outlined" :to="{name: 'edit-profile'}">
             Edit Profile
-          </v-btn>
-          <v-dialog v-model="dialog" persistent width="500px">
+          </v-btn> -->
+          <v-btn color="red" variant="outlined" @click="logout">
+              Log out
+            </v-btn>
+          <!-- <v-dialog v-model="dialog" persistent width="500px">
           <template v-slot:activator="{ props }">
             <v-btn color="red" variant="outlined" v-bind="props">
-              Delete Account
+              Log out
             </v-btn>
           </template>
           <v-card>
@@ -36,7 +78,7 @@
             </v-card-title>
             <v-divider/>
             <p class="text-center text-red" v-if="on_error">{{ on_error }}</p>
-            <v-card-text>Are you sure you want to delete your account? This action cannnot is permanent</v-card-text>
+            <v-card-text>Are you sure you want to delete your account? You cannot undo this action</v-card-text>
            
             <v-card-actions class="pb-10 mt-5">
               <v-spacer></v-spacer>
@@ -47,7 +89,7 @@
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
-        </v-dialog>
+        </v-dialog> -->
         </div>
 
        
@@ -79,10 +121,14 @@ import {deleteSession} from "@/composables/useSession.js"
 import { useRouter, useRoute } from 'vue-router'
 const dialog = ref(false)
 
-const user = useAuthStore().user
+const authStore = useAuthStore()
+const user = authStore.user
+
 const isLoading = ref()
 const on_error = ref('')
 const router = useRouter()
+
+
 const deleteUser = async () => {
   const {error, success, loading } = await useDeleteUser(user.id)
 
@@ -95,8 +141,7 @@ const deleteUser = async () => {
     dialog.value = false
 
     const deletedSession = deleteSession()
-    if (deleteSession){
-
+    if (deletedSession){
       router.push({name : 'login'})
     }
   }
@@ -108,6 +153,17 @@ const deleteUser = async () => {
 }
 
 
+const logout = async () =>{
+  isLoading.value = user.loading
+  console.log('Logging in')
+  await authStore.logout()
+  if(authStore.ready){
+    sessionStorage.clear()
+    router.push({'name' : 'login'})
+  }
+}
+
+
 // const permissions = computed(()=>{
 
 // })
@@ -115,3 +171,18 @@ const deleteUser = async () => {
 
 </script>
 
+<style>
+/* .v-btn:before {
+  opacity: 0 !important;
+} */
+
+.v-btn{
+  opacity: 1;
+}
+
+/* .v-ripple__container {
+  opacity: 0 !important;
+} */
+
+
+</style>

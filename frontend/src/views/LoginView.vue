@@ -106,7 +106,11 @@ async function login(){
     error.value = ''
     loading.value = true
     const isFormCorrect = await v$.value.$validate()
-    if (!isFormCorrect) return
+    if (!isFormCorrect){
+        loading.value=false
+        return
+
+    } 
 
     await authStore.login({ username: user.email, password:user.password })
     console.log(authStore.ready)

@@ -2,7 +2,7 @@
     <v-data-table    
         :hide-default-footer="true"
         :headers="headers"
-        :items="desserts"
+        :items="groups"
         :loading="isLoading"
         class="px-8 pb-4 border-sm rounded-lg text-subtle text-apptext">
         <template v-slot:top>
@@ -128,6 +128,7 @@
 import { computed, nextTick, ref, watch, onMounted } from 'vue'
 import { useGroupStore } from '@/store/group.store';
 import {useRoleStore} from "@/store/role.store";
+import cloneDeep from 'lodash/cloneDeep';
 import {
   useAddRoleToGroup,
   useCreateGroup,
@@ -156,7 +157,7 @@ const headers = ref([
   { title: 'Actions', key: 'actions', sortable: false, width:"" },
 ])
 
-const desserts = ref([])
+const groups = ref([])
 const editedIndex = ref(-1)
 
 const editedItem = ref({
@@ -175,20 +176,19 @@ async function initialize () {
   await roleStore.getRoles()
   await groupStore.getGroups()
   rolesList.value = roleStore.roles
-  desserts.value =groupStore.groups
+  groups.value =groupStore.groups
   isLoading.value=false
 }
 
 function editItem (item) {
-  editedIndex.value = desserts.value.indexOf(item)
+  editedIndex.value = groups.value.indexOf(item)
   editedItem.value = Object.assign({}, item)
-  console.log(editedItem.value)
   dialog.value = true
 }
 
 function deleteItem (item) {
 
-  editedIndex.value = desserts.value.indexOf(item)
+  editedIndex.value = groups.value.indexOf(item)
   editedItem.value = Object.assign({}, item)
   dialogDelete.value = true
 }
@@ -201,7 +201,7 @@ async function deleteItemConfirm (group_id) {
   }
 
   if(success.value){
-    desserts.value.splice(editedIndex.value, 1)
+    groups.value.splice(editedIndex.value, 1)
     isLoading.value = loading.value
     closeDelete()
   }
@@ -227,35 +227,95 @@ async function save () {
   const apiFunction = isEditing ? useEditGroup : useCreateGroup;
   const apiPayload = editedItem.value;
 
-  try {
+ 
     let apiResponse;
     if(isEditing){
 
-    //   if(desserts.value[editedIndex.value].name !== editItem.value.name){
+    //   if(roles.value[editedIndex.value].name !== editItem.value.name){
     //     apiResponse = await apiFunction(editedItem.value.id, payload)
     //   }
-    //   const removedRoles = desserts.value[editedIndex.value].roles.filter((role) => !editedItem.value.roles.includes(role));
-    //   const addedRoles = editedItem.value.roles.filter((role) => !desserts.value[editedIndex.value].roles.includes(role));
+      isLoading.value = true
+      const removedRoles = groups.value[editedIndex.value].roles.filter((role) => !editedItem.value.roles.includes(role));
+      const addedRoles = editedItem.value.roles.filter((role) => !groups.value[editedIndex.value].roles.includes(role));
+
+      
+      // if(removedRoles){
+      //   removedRoles.forEach(async (role) =>{
+      //     console.log('counting')
+      //     const {group, loading, success, error } =  await useRemoveRoleFromGroup(editedItem.value.id, role.id);
+      //     if(error){
+      //       isLoading.value= false
+      //     }
+      //   })
+      // }
+
+      // if(addedRoles){
+      //   addedRoles.forEach(async (role)=>{
+      //     console.log('counting')
+      //     const {group, loading, success, error } =  await useAddRoleToGroup(editedItem.value.id, role.id);
+      //     if(error){
+      //       loading.value = false
+      //     }
+      //   })
+      // }
+
+      const removeRolePromises = removedRoles.map(async (role) => {
+      const { group, loading, success, error } = await useRemoveRoleFromGroup(
+        editedItem.value.id,
+        role.id
+      );
+      if (error) {
+        isLoading.value = false;
+      }
+      return { group, loading, success, error };
+    });
+
+    // Create an array of promises for added roles
+    const addRolePromises = addedRoles.map(async (role) => {
+      const { group, loading, success, error } = await useAddRoleToGroup(
+        editedItem.value.id,
+        role.id
+      );
+      if (error) {
+        isLoading.value = false;
+      }
+      return { group, loading, success, error };
+    });
+
+    // Wait for all removeRolePromises and addRolePromises to complete
+    const [removeRoleResults, addRoleResults] = await Promise.all([
+      Promise.all(removeRolePromises),
+      Promise.all(addRolePromises),
+    ]);
+
+      apiResponse = await apiFunction(editedItem.value.id, apiPayload)
+      
+
+
     } else {
       apiResponse = await apiFunction(apiPayload);
     }
 
     const { group, loading, success, error } = apiResponse;
-    console.log(group.value, success.value, error.value)
       loading.value && (isLoading.value = loading.value);
+      const deepCopiedGroup = cloneDeep(group.value);
 
       if (success.value) {
           if (isEditing) {
-              Object.assign(desserts.value[editedIndex.value], group.value);
+           console.log(group.value)
+              Object.assign(groups.value[editedIndex.value], deepCopiedGroup);
+              isLoading.value=false
           } else {
-              desserts.value.push(group.value);
+              group.value.push(group.value);
+              isLoading.value=false
           }
           close();
+          // location.reload()
+          
+          console.log(groups.value[editedIndex.value])
       }
   
-  } catch (e){
-    console.log(e);
-  }
+  
 
 //   if (editedIndex.value > -1) {
     
@@ -265,9 +325,9 @@ async function save () {
 //     })
 //     console.log(removedRoles)
 //     console.log(addedRoles)
-//     Object.assign(desserts.value[editedIndex.value], editedItem.value)
+//     Object.assign(roles.value[editedIndex.value], editedItem.value)
 //   } else {
-//     desserts.value.push(editedItem.value)
+//     roles.value.push(editedItem.value)
 //   }
 //   close()
 }

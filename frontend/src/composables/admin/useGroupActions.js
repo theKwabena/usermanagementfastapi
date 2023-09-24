@@ -56,6 +56,7 @@ export async function useEditGroup(group_id, payload) {
         loading.value = true;
         const response = await editGroup(group_id, payload);
         group.value = response.data;
+        console.log(group.value, response.data)
         success.value = true;
     } catch (e) {
         error.value = e.response ? e.response.data.detail : 'Network error';
@@ -63,7 +64,7 @@ export async function useEditGroup(group_id, payload) {
         loading.value = false;
     }
 
-    return { error, success, loading, user };
+    return { error, success, loading, group };
 }
 
 
@@ -84,7 +85,7 @@ export async function useAddRoleToGroup(group_id, role_id) {
         loading.value = false;
     }
 
-    return { error, success, loading, user };
+    return { error, success, loading, group };
 }
 
 
@@ -105,7 +106,7 @@ export async function useRemoveRoleFromGroup(group_id, role_id) {
         loading.value = false;
     }
 
-    return { error, success, loading, user };
+    return { error, success, loading, group };
 }
 
 

@@ -48,7 +48,7 @@ export async function deleteGroup(group_id) {
 }
 
 export async function editGroup(group_id, payload) {
-    return axios.put(`${baseUrl}/groups/${group_id}`, payload, config);
+    return axios.put(`${baseUrl}/admin/groups/${group_id}`, payload, config);
 }
 
 
@@ -62,11 +62,11 @@ export async function removeUserFromGroup(user_id, group_id) {
 
 
 export async function addRoleToGroup(group_id, role_id) {
-    return axios.post(`${baseUrl}/groups/${group_id}/roles?role_id=${role_id}`, config);
+    return axios.post(`${baseUrl}/admin/groups/${group_id}/roles?role_id=${role_id}`, config);
 }
 
 export async function removeRoleFromGroup(group_id, role_id) {
-    return axios.delete(`${baseUrl}/groups/${group_id}/roles?=${role_id}`, config);
+    return axios.delete(`${baseUrl}/admin/groups/${group_id}/roles?role_id=${role_id}`, config);
 }
 
 

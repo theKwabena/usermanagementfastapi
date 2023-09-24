@@ -24,7 +24,6 @@ actions : {
         this.isLoading = true
         await axios.get(`${baseUrl}/admin/roles/`, {withCredentials: true, credentials: 'include'})
         .then(response => {
-            console.log(response.data)
             this.all_roles = response.data
         })
         .catch((err)=>{

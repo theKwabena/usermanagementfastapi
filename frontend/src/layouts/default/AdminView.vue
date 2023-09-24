@@ -1,6 +1,7 @@
 <template>
     <v-app>
         <side-bar /> 
+        <app-bar/>
         <v-main>
             <router-view />
         </v-main>
@@ -9,4 +10,5 @@
 
 <script setup>
     import SideBar from "./SideBar.vue"
+    import AppBar from "./oldlayour/AppBar.vue";
 </script>

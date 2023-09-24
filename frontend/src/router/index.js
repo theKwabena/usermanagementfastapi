@@ -51,10 +51,18 @@ const routes = [
     component :  () => import('@/layouts/default/AdminView.vue'),
     children : [
       {
-        path : 'users',
+        
+        path : '',
         name : 'admin-home',
         component: ()=> import("@/views/Admin/AdminDashboard.vue"),
-        beforeEnter : [AdminRoute]
+        
+      },
+      {
+        
+        path : 'users',
+        name : 'admin-users',
+        component: ()=> import("@/views/Admin/UsersView.vue"),
+        
       },
       {
         path :'edit',
@@ -63,8 +71,8 @@ const routes = [
         beforeEnter : [AdminRoute ]
       },
       {
-        path : "groups",
-        name : 'admin-groups',
+        path : "permissions",
+        name : 'admin-permissions',
         component: ()=> import ("@/views/Admin/GroupsView.vue"),
         // beforeEnter : [loadGroup]
       },
@@ -74,7 +82,10 @@ const routes = [
         component : ()=>import("@/views/Admin/RolesView.vue")
       }
     ],
-    beforeEnter: [AdminRoute]
+    meta : {
+      requiresAuth : true
+    }
+    // beforeEnter: [AdminRoute]
   }
 ]
 
@@ -97,19 +108,19 @@ const router = createRouter({
 
 router.beforeEach(async (to, from, next)=>{
   if (to.meta.requiresAuth){
-
-    const user = useAuthStore().user
+    const authStore = useAuthStore()
     const authenticated = Cookies.get('is_Authenticated')
-
+    const user = authStore.user
     if (!authenticated){
       return next({path : '/login'})
-    } 
+    }
+
     else {
       if(!user){
-        await auth.getUserProfile()
-        if (!user){
-          return next({path: '/login'})
-        }
+        await authStore.getUserProfile()
+        // if (!user){
+        //   return next({path: '/login'})
+        // }
        
       }
     }

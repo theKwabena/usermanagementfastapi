@@ -250,7 +250,8 @@ async function save() {
             } else {
                 roles.value.push(role.value);
             }
-            close();
+            location.reload()
+            // close();
         }
 
         if (error.value && error.value.includes('email')) {

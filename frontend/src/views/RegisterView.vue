@@ -57,6 +57,7 @@
                             prepend-inner-icon="mdi-email"
                             variant="outlined"
                             :error-messages="v$.email.$errors.map(e => e.$message)"
+                            
                         ></v-text-field>
                     </v-col>
                 </v-row>
@@ -64,7 +65,7 @@
                     <v-col cols="12">
                         <h6 class="text-subtitle-1 text-medium-emphasis d-flex align-center justify-space-between">
                         Phone Number</h6>
-                        <vue-tel-input v-model="user.phone_number" mode="international" @validate="handleValidation" :class="inputClass" @on-input="handleInput"></vue-tel-input>
+                        <vue-tel-input v-model="user.phone_number" mode="international" @validate="handleValidation" :class="inputClass" @on-input="handleInput" class="text-apptext"></vue-tel-input>
                         <p class="px-4 text-caption text-error " v-if="phone_error">Enter a valid phone number</p>
                     </v-col>
                 </v-row>
@@ -203,6 +204,7 @@ async function register(){
     v$.value.$clearExternalResults();
     const isFormCorrect = await v$.value.$validate()
     if (!isFormCorrect){
+        loading.value = false
         if (!phone_is_valid.value){
             phone_error.value = true
             inputClass.value =  'invalid-input';
@@ -210,6 +212,7 @@ async function register(){
         }
         return
     }  else if (!phone_is_valid.value){
+        loading.value = false
         inputClass.value = phone_error.value = 'invalid-input';
         phone_error.value = true
         return
@@ -221,7 +224,9 @@ async function register(){
         router.push({name : 'home'})
     }
 
+    //Handle the errors when there is a registration error
     if(authStore.error){
+        loading.value = false
         $externalResults.value ={ email : authStore.error}
     }
 }
@@ -230,7 +235,8 @@ async function register(){
 
 </script>
 
-<style scoped>
+<style>
+
 .letter-spacing {
 /* Define your desired letter spacing */
   color: #3AAF9F;
@@ -244,9 +250,30 @@ async function register(){
   width: 50%
 }
 
+.vue-tel-input {
+    border-radius: 3px;
+    display: flex;
+    border: 1px solid #bbb;
+    text-align: left;
+    padding: 4px 0px 4px 0px;
+}
+
+.vue-tel-input:focus-within {
+    box-shadow: none;
+    border-color: black;
+    border-width:2px;
+}
 
 
 .invalid-input {
   border: 1px solid red; /* Change to your desired invalid input style */
 }
+
+.v-field__outline {
+  --v-field-border-width: 0.5px;
+  --v-field-border-opacity: 0.38;
+  
+}
+
+
 </style>

@@ -29,19 +29,6 @@ def init_db(db: Session) -> None:
             last_name = "admin",
             email=settings.FIRST_ADMIN,
             password=settings.FIRST_ADMIN_PASSWORD,
-            # is_superuser=True,
+            is_superuser=True,
         )
-
         user = user_db.create(db, obj_in=user_in)  # noqa: F841
-
-    group = group_db.get_group_by_name(db, "admin")
-    if not group:
-        group_in = GroupCreate(
-            name="admin"
-        )
-        group = group_db.create(db, obj_in=group_in)  # noqa: F841
-
-    try:
-        group_db.add_user_to_group(db, group_id=group.id, user_id=user.id)
-    except HTTPException as e:
-        pass

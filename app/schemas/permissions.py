@@ -9,6 +9,10 @@ class GroupCreate(Group):
     pass
 
 
+class UserGroupResponse(Group):
+    id: int
+
+
 class Role(BaseModel):
     name: constr(min_length=2)
 
@@ -23,4 +27,4 @@ class RoleResponse(Role):
 
 class GroupResponse(Group):
     id: int
-    roles: list[Role]
+    roles: list[RoleResponse]

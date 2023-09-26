@@ -18,6 +18,10 @@ python-jose = "^3.3.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.6"
 tenacity = "^8.2.3"
+pillow = "^10.0.1"
+authlib = "^1.2.1"
+httpx = "^0.25.0"
+itsdangerous = "^2.1.2"
 
 
 

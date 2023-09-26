@@ -5,7 +5,7 @@ from app.schemas.permissions import GroupCreate, GroupResponse
 from app.crud.permissions import group
 
 from .base import  admin
-router = APIRouter(tags=["Admin - Groups"], prefix="/admin/groups", dependencies=[Depends(PermissionChecker([admin]))])
+router = APIRouter(tags=["Admin - Groups"], prefix="/admin/groups")# dependencies=[Depends(PermissionChecker([admin]))])
 
 
 @router.get("/", status_code=status.HTTP_200_OK, response_model=list[GroupResponse])
@@ -43,3 +43,20 @@ def add_role_to_group(group_id: int, role_id: int, database: Session = Depends(g
 @router.delete("/{group_id}/roles", status_code=status.HTTP_200_OK, response_model=GroupResponse)
 def remove_role_from_group(group_id: int, role_id: int, database: Session = Depends(get_db)):
     return group.remove_role_from_group(db=database, group_id=group_id, role_id=role_id)
+
+@router.put("/{group_id}", status_code=status.HTTP_200_OK, response_model=GroupResponse)
+def edit_group(group_id : int, group_in: GroupCreate, database : Session=Depends((get_db))):
+    group_in_db = group.get(db=database, id=group_id)
+    if not group_in_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="group not found"
+        )
+
+    check_name = group.get_group_by_name(db=database,name=group_in.name)
+    if not check_name.name == group_in_db.name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f'Group with name {group_in.name} exists'
+        )
+    return group.update(db=database, db_obj=group_in_db, obj_in=group_in)

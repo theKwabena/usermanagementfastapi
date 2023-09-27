@@ -114,12 +114,9 @@
             
         </template>
         <template v-slot:no-data>
-            <v-btn
-            color="primary"
-            @click="initialize"
-            >
-            Reset
-            </v-btn>
+          <template v-slot:no-data>
+        <p> No Roles Available, Create New Role</p>
+        </template>
         </template>
         <template #bottom></template>
     </v-data-table>

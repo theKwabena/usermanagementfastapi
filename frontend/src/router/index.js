@@ -50,16 +50,16 @@ const routes = [
     name: 'admin', 
     component :  () => import('@/layouts/default/AdminView.vue'),
     children : [
+      // {
+        
+      //   path : '',
+      //   name : 'admin-home',
+      //   component: ()=> import("@/views/Admin/AdminDashboard.vue"),
+        
+      // },
       {
         
         path : '',
-        name : 'admin-home',
-        component: ()=> import("@/views/Admin/AdminDashboard.vue"),
-        
-      },
-      {
-        
-        path : 'users',
         name : 'admin-users',
         component: ()=> import("@/views/Admin/UsersView.vue"),
         

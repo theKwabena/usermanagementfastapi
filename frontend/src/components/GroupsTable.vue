@@ -114,9 +114,9 @@
             
         </template>
         <template v-slot:no-data>
-          <template v-slot:no-data>
+          
         <p> No Roles Available, Create New Role</p>
-        </template>
+      
         </template>
         <template #bottom></template>
     </v-data-table>

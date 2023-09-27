@@ -10,5 +10,5 @@
 
 <script setup>
     import SideBar from "./SideBar.vue"
-    import AppBar from "./oldlayour/AppBar.vue";
+    import AppBar from "../AppBar.vue";
 </script>

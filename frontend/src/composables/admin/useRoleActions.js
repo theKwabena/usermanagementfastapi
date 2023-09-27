@@ -20,7 +20,7 @@ export async function useCreateRole(payload) {
         role.value = response.data;
         success.value = true;
     } catch (e) {
-        error.value = e.response ? e.response.data.detail :e;
+        error.value = e.response ? e.response.data.detail : e;
     } finally {
         loading.value = false;
     }

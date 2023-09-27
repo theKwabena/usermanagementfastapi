@@ -130,6 +130,8 @@ const roleStore = useRoleStore()
 const dialog = ref(false)
 const dialogDelete = ref(false)
 const isLoading = ref(true)
+const on_error = ref('')
+const $externalResults = ref({})
 const headers = ref([
   {
     title: 'Roles',
@@ -160,11 +162,12 @@ const rules = {
     }
 }
 
-const v$ = useVuelidate(rules, editedRole)
+const v$ = useVuelidate(rules, editedRole, {$externalResults})
 
 const formTitle = computed(() => {
   return editedIndex.value === -1 ? 'Create Role' : 'Edit Role'
 })
+
 
 
 async function initialize () {
@@ -194,14 +197,17 @@ async function deleteItemConfirm (group_id) {
   }
 
   if(success.value){
-    roles.value.splice(editedIndex.value, 1)
-    isLoading.value = loading.value
-    closeDelete()
+    location.reload()
+    // roles.value.splice(editedIndex.value, 1)
+    // isLoading.value = loading.value
+    // closeDelete()
   }
 }
 
 function close () {
     v$.value.$reset()
+    v$.value.$clearExternalResults();
+
     dialog.value = false
     nextTick(() => {
     editedRole.value = Object.assign({}, defaultRole.value)
@@ -218,6 +224,7 @@ async function closeDelete () {
 }
 
 async function save() {
+    v$.value.$clearExternalResults();
 
     if (!(await v$.value.$validate())) return;
 
@@ -245,17 +252,18 @@ async function save() {
         loading.value && (isLoading.value = loading.value);
 
         if (success.value) {
-            if (isEditing) {
-                Object.assign(roles.value[editedIndex.value], role.value);
-            } else {
-                roles.value.push(role.value);
-            }
+            // if (isEditing) {
+            //     Object.assign(roles.value[editedIndex.value], role.value);
+            // } else {
+            //     roles.value.push(role.value);
+            // }
             location.reload()
             // close();
         }
 
-        if (error.value && error.value.includes('email')) {
-            $externalResults.value = { email: [error.value] };
+        if (error.value ) {
+            $externalResults.value = { name: [error.value] };
+           on_error.value = error.value
         }
     } catch (e) {
         // Handle any unexpected errors here

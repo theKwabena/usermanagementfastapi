@@ -29,6 +29,7 @@
                         <v-col cols="12" sm="6" md="12">
                         <v-text-field
                             v-model="editedItem.name"
+                            :error-messages="v$.name.$errors.map(e => e.$message)"
                             variant="outlined"
                         ></v-text-field>
                         </v-col>
@@ -129,6 +130,8 @@ import { computed, nextTick, ref, watch, onMounted } from 'vue'
 import { useGroupStore } from '@/store/group.store';
 import {useRoleStore} from "@/store/role.store";
 import cloneDeep from 'lodash/cloneDeep';
+import { useVuelidate } from '@vuelidate/core'
+import { helpers, minLength, required} from '@vuelidate/validators'
 import {
   useAddRoleToGroup,
   useCreateGroup,
@@ -138,7 +141,7 @@ import {
 } from "@/composables/admin/useGroupActions.js";
 
 
-
+const $externalResults = ref({})
 const roleStore = useRoleStore()
 const groupStore = useGroupStore()
 const dialog = ref(false)
@@ -168,9 +171,22 @@ const defaultItem = ref({
   name: '',
   roles : [],
 })
+
+const rules = {
+    name : {
+        required : helpers.withMessage('Role name cannot be empty', required),
+        minLength : minLength(2)
+    }
+}
+
+const v$ = useVuelidate(rules, editedItem, {$externalResults})
+
+
 const formTitle = computed(() => {
   return editedIndex.value === -1 ? 'Create New  Group' : 'Edit Item'
 })
+
+
 async function initialize () {
   isLoading.value=true
   await roleStore.getRoles()
@@ -208,6 +224,8 @@ async function deleteItemConfirm (group_id) {
 }
 
 function close () {
+  v$.value.$reset()
+  v$.value.$clearExternalResults();
   dialog.value = false
   nextTick(() => {
     editedItem.value = Object.assign({}, defaultItem.value)
@@ -223,6 +241,10 @@ async function closeDelete () {
 }
 
 async function save () {
+  v$.value.$clearExternalResults();
+
+  if (!(await v$.value.$validate())) return;
+
   const isEditing = editedIndex.value > -1;
   const apiFunction = isEditing ? useEditGroup : useCreateGroup;
   const apiPayload = editedItem.value;
@@ -231,33 +253,9 @@ async function save () {
     let apiResponse;
     if(isEditing){
 
-    //   if(roles.value[editedIndex.value].name !== editItem.value.name){
-    //     apiResponse = await apiFunction(editedItem.value.id, payload)
-    //   }
       isLoading.value = true
       const removedRoles = groups.value[editedIndex.value].roles.filter((role) => !editedItem.value.roles.includes(role));
       const addedRoles = editedItem.value.roles.filter((role) => !groups.value[editedIndex.value].roles.includes(role));
-
-      
-      // if(removedRoles){
-      //   removedRoles.forEach(async (role) =>{
-      //     console.log('counting')
-      //     const {group, loading, success, error } =  await useRemoveRoleFromGroup(editedItem.value.id, role.id);
-      //     if(error){
-      //       isLoading.value= false
-      //     }
-      //   })
-      // }
-
-      // if(addedRoles){
-      //   addedRoles.forEach(async (role)=>{
-      //     console.log('counting')
-      //     const {group, loading, success, error } =  await useAddRoleToGroup(editedItem.value.id, role.id);
-      //     if(error){
-      //       loading.value = false
-      //     }
-      //   })
-      // }
 
       const removeRolePromises = removedRoles.map(async (role) => {
       const { group, loading, success, error } = await useRemoveRoleFromGroup(
@@ -306,8 +304,11 @@ async function save () {
               Object.assign(groups.value[editedIndex.value], deepCopiedGroup);
               isLoading.value=false
           } else {
-              group.value.push(group.value);
-              isLoading.value=false
+              apiPayload.roles.forEach(async (role) => {
+                await useAddRoleToGroup(group.value.id, role.id)
+              })
+              groups.value.push(group.value);
+              location.reload()
           }
           close();
           // location.reload()
@@ -315,21 +316,11 @@ async function save () {
           console.log(groups.value[editedIndex.value])
       }
   
-  
 
-//   if (editedIndex.value > -1) {
-    
-
-//     removedRoles.forEach((role)=>{
-//       console.log(role.id)
-//     })
-//     console.log(removedRoles)
-//     console.log(addedRoles)
-//     Object.assign(roles.value[editedIndex.value], editedItem.value)
-//   } else {
-//     roles.value.push(editedItem.value)
-//   }
-//   close()
+      if (error.value ) {
+            $externalResults.value = { name: [error.value] };
+            isLoading.value=false
+      }
 }
 
 
@@ -341,7 +332,6 @@ watch(dialogDelete, val => {
 })
 
 onMounted(()=>{
-
   initialize()
 })
 

@@ -23,6 +23,7 @@
     "vue": "^3.2.0",
     "vue-router": "^4.0.0",
     "vue-tel-input": "^8.1.4",
+    "vue3-google-login": "^2.0.23",
     "vuetify": "^3.0.0",
     "webfontloader": "^1.0.0"
   },

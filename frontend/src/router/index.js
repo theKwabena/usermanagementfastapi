@@ -10,7 +10,7 @@ import { useUserStore } from '@/store/user.store'
 const routes = [
   {
     path: '/',
-    component: () => import('@/layouts/default/oldlayour/Default.vue'),
+    component: () => import('@/layouts/Default.vue'),
     children: [
       {
         path: '',
@@ -68,7 +68,7 @@ const routes = [
         path :'edit',
         name : 'admin-edit',
         component: ()=> import ("@/views/Admin/EditUser.vue"),
-        beforeEnter : [AdminRoute ]
+        // beforeEnter : [AdminRoute ]
       },
       {
         path : "permissions",

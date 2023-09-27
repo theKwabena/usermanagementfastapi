@@ -1,8 +1,5 @@
 import { defineStore } from 'pinia';
 import axios from "axios"
-import {ref, reactive} from 'vue'
-import { useStorage } from '@vueuse/core'
-import { cookiesStorage } from './cookieStorage';
 import Cookies from 'js-cookie';
 
 const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
@@ -38,6 +35,7 @@ export const useAuthStore = defineStore('authoptions', {
             this.data = response.data.user
             Cookies.set('is_Authenticated', true, {expires: 8})
           }).catch(err => {
+            console.log(err)
             this.isReady = false
             this.on_error = err.response ? err.response.data.detail : 'Network error';
           }).finally(resp => {
@@ -56,15 +54,15 @@ export const useAuthStore = defineStore('authoptions', {
       this.isReady = false
 
       try {
-        await axios.post(`${baseUrl}/users`, payload, {withCredentials: true, credentials:'include'})
+        await axios.post(`${baseUrl}/sign-up`, payload, {withCredentials: true, credentials:'include'})
         .then(response => {
           this.isReady  = true
           this.data = response.data
-          Cookies.set('is_Authenticated', true, {expires: 8})
+          // Cookies.set('is_Authenticated', true, {expires: 8})
         }).catch(err => {
           console.log(err.response.data.detail)
           this.isReady = false
-          this.on_error = err.response ? err.response.data.detail : 'Network error';
+          this.on_error = err.response ? err.response.data.detail :err.response;
         }).finally(resp => {
           this.isLoading = false
        })
@@ -103,6 +101,55 @@ export const useAuthStore = defineStore('authoptions', {
       this.isLoading = false
       }
     },
+
+
+    async editUser(payload){
+      try{
+        await axios.put(`${baseUrl}/profile`, payload, {withCredentials: true, credentials:'include'})
+        .then(response=>{
+          this.isReady = true
+          this.data = response.data
+        }).catch(err=>{
+          console.log(err)
+          this.isReady = false
+          this.on_error = err.response? err.response.data.detail : 'An error occured, please try again'
+        }).finally(resp=>{
+          this.isLoading = false
+        })
+      } catch (e){
+        this.isReady = false
+        this.isLoading = false
+        this.on_error = 'An error occurred, please try again' 
+      }
+    },
+
+    async updateProfilePicture(payload){
+      this.isLoading = true
+      this.on_error = false
+      this.isReady = false
+      try{
+        await axios.post(`${baseUrl}/profile`, payload, 
+        { 
+          headers: {
+          'Content-Type': 'multipart/form-data', // Ensure the correct content type for file uploads
+          },
+          withCredentials: true, credentials:'include'})
+        .then(response=>{
+          this.isReady=true
+          this.data = response.data
+        }).catch(err=>{
+          console.log(err)
+          this.isReady = false
+          this.on_error = err.response? err.response.data.detail : 'An error occured, please try again'
+        }).finally(resp=>{
+          this.isLoading = false
+        })
+      } catch (e){
+        this.isReady = false
+        this.isLoading = false
+        this.on_error = 'An error occurred, please try again' 
+      }
+    }
   
   },
 
@@ -110,6 +157,11 @@ export const useAuthStore = defineStore('authoptions', {
     storage: sessionStorage,
   }
 })
+
+
+
+
+
 
 // export const useAuthStore = defineStore('auth', ()=>{
  

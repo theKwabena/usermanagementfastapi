@@ -11,11 +11,13 @@
                   <h4 class="letter-spacing text-primary " >Register an  account</h4> 
               </div>
 
-              <div class="mb-6 d-flex flex-column">
-                  <v-btn variant="outlined" size="large" class="mb-4 text-apptext text-subtitle" prepend-icon="mdi-google">
-                  Continue with Google
-                  </v-btn>
+              <div class="mb-6 w-100 d-flex flex-column justify-center align-center">
+                <GoogleLogin
+                 :callback="externalAuth" 
+                 :buttonConfig="btn_cnfig"
+                 />
               </div>
+              <p class="text-center mt-n3 mb-4 text-error" v-if="error"> {{ error }}</p>
               <div class="w-100 d-flex align-center justify-center">
                   <p class="text-center mb-n3 bg-white px-8" style="z-index: 200;">OR</p>
               </div>
@@ -136,12 +138,21 @@ import { useAuthStore } from '@/store/auth.store';
 import { useRouter, useRoute } from 'vue-router'
 import { VueTelInput } from 'vue-tel-input';
 import 'vue-tel-input/vue-tel-input.css';
+import { GoogleLogin, decodeCredential } from 'vue3-google-login';
+
 
 const router = useRouter()
 const visible = ref(false)
 const $externalResults = ref({})
 const loading = ref(false)
+const error = ref('')
 
+const btn_cnfig = {
+    size: "large",
+    width  : "700",
+    text : 'signup_with',
+    logo_alignment : 'center'   
+}
 const user = reactive({
     first_name : '',
     last_name : '',
@@ -152,10 +163,11 @@ const user = reactive({
 })
 
 
-//Methods and vars for phone Number Field
+//Meethods and variables for phone Number Field
 const phone_is_valid=ref(null)
 const phone_error = ref(false)
 const inputClass = ref('')
+
 const handleInput = ()=> {
     phone_error.value = false
     inputClass.value = ''
@@ -199,6 +211,8 @@ const v$ = useVuelidate(rules, user, {$externalResults})
 const authStore = useAuthStore()
 
 
+
+
 async function register(){
     loading.value = true
     v$.value.$clearExternalResults();
@@ -231,6 +245,39 @@ async function register(){
     }
 }
 
+const externalAuth = async (response)=>{
+    const userData = decodeCredential(response.credential)
+    console.log(userData)
+    const last_name = userData.family_name ? userData.family_name : userData.given_name
+    
+    const payload = {
+        first_name : userData.given_name,
+        last_name : last_name,
+        email : userData.email,
+        password : userData.sub,
+        email_verified : userData.email_verified,
+        auth_identity_provider : 'google' 
+    }
+
+    await authStore.register(payload)
+    if(authStore.ready){
+        //Login user after sign up
+        await authStore.login({'username' : payload.email, 'password' : payload.password})
+        if(authStore.ready){
+            loading.value = false
+            router.push({name : 'home'})
+        }
+        
+    }
+
+    if(authStore.error){
+        error.value = authStore.error
+        loading.value = false
+
+    }
+
+    
+}
 
 
 </script>

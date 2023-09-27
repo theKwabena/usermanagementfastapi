@@ -1,4 +1,5 @@
 <template>
+   
       <v-layout class="h-100">
         <v-row>
             <v-col cols="12" md="5" class="d-none d-lg-block d-md-block d-xl-block d-xxl-block">
@@ -17,9 +18,11 @@
                 </div>
 
                 <div class="mb-6 d-flex flex-column">
-                    <v-btn variant="outlined" size="large" class="mb-4" prepend-icon="mdi-google">
-                    Sign in with Google
-                    </v-btn>
+                    <GoogleLogin :callback="callback" prompt auto class="px-16" /> 
+                        <!-- <v-btn variant="outlined" size="large" class="mb-4" prepend-icon="mdi-google">
+                        Sign in with Google
+                        </v-btn> -->
+                    <!-- </GoogleLogin> -->
                 </div>
                 <div class="w-100 d-flex align-center justify-center">
                     <p class="text-center mb-n3 bg-white px-8" style="z-index: 200;">OR</p>
@@ -63,8 +66,6 @@
             </div>
         
             </v-col>
-
-            
         </v-row>
         
 
@@ -77,11 +78,16 @@ import { useVuelidate } from '@vuelidate/core'
 import { required, email, helpers } from '@vuelidate/validators'
 import { useAuthStore } from '@/store/auth.store';
 import { useRouter, useRoute } from 'vue-router'
+import {decodeCredential} from "vue3-google-login"
+
 
 const router = useRouter()
 const visible = ref(false)
 const loading = ref(false)
 const error = ref('')
+
+
+
 const user = reactive({
     email : '',
     password : ''
@@ -130,6 +136,29 @@ async function login(){
         loading.value = false
     } 
   
+}
+
+
+const callback = async (response) =>{
+    const userData = decodeCredential(response.credential)
+
+    await authStore.login({ username: userData.email, password:userData.sub })
+
+    if(authStore.error){
+        error.value = authStore.error
+        loading.value = false
+    }
+
+    if(authStore.ready){
+        // localStorage.setItem('token', get_user.user.access_token)
+        router.push(
+            {
+                name : 'home'
+            }
+        )
+        loading.value = false
+    } 
+    
 }
 
 

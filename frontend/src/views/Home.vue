@@ -7,9 +7,9 @@
   <v-row class="position-absolute w-100" style="top: 40%; left:15%">
     <v-col cols="8">
       <div class="d-flex justify-space-between align-center pt-10 flex-column flex-md-row flex-lg-row">
-        <div class="d-flex align-center">w
+        <div class="d-flex align-center">
           <v-avatar color="grey" size="150" >
-              <v-img cover src="https://cdn.vuetifyjs.com/images/profiles/marcus.jpg"></v-img>
+              <v-img cover :src="profile_image"></v-img>
           </v-avatar>
           <div class="px-4 pt-6 d-flex">
             <div>
@@ -57,7 +57,7 @@
        
         <v-divider class="d-md-none" />
         <div class="mt-md-4 mt-10 mt-lg-10 d-flex align-center">
-          <v-btn elevation="0" rounded="xs" class="bg-primary mr-2" :to="{'name' : 'admin'}">
+          <v-btn elevation="0" rounded="xs" class="bg-primary mr-2" :to="{'name' : 'admin'}" v-if="canList || canEdit || canDelete || canCreate">
             Admin
           </v-btn>
           <!-- <v-btn elevation="0" rounded="xs" class="mr-2" variant="outlined" :to="{name: 'edit-profile'}">
@@ -114,13 +114,23 @@
 </template>
 
 <script setup>
-import {ref} from 'vue'
+import {ref, computed} from 'vue'
 import { useAuthStore } from '@/store/auth.store';
-import {useDeleteUser} from "@/composables/admin/useUserActions.js"
+import {useDeleteCurrentUser} from "@/composables/admin/useUserActions.js"
 import {deleteSession} from "@/composables/useSession.js"
 import { useRouter, useRoute } from 'vue-router'
+import {usePermissions} from "@/composables/admin/usePermissions"
+
+
+const canCreate = usePermissions('admin_create_users');
+const canDelete = usePermissions('admin_delete_users');
+const canEdit = usePermissions('admin_edit_users');
+const canList = usePermissions('admin_list_users');
+
+
 const dialog = ref(false)
 
+const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
 const authStore = useAuthStore()
 const user = authStore.user
 
@@ -128,9 +138,14 @@ const isLoading = ref()
 const on_error = ref('')
 const router = useRouter()
 
+const profile_image = computed(()=>{
+  if(user.profile_img){
 
+    return `${baseUrl}/${user.profile_img}`
+  }
+})
 const deleteUser = async () => {
-  const {error, success, loading } = await useDeleteUser(user.id)
+  const {error, success, loading } = await useDeleteCurrentUser(user.id)
 
   if(loading.value){
     isLoading.value = loading
@@ -144,9 +159,7 @@ const deleteUser = async () => {
     if (deletedSession){
       router.push({name : 'login'})
     }
-  }
-
-  if(error){
+  } else if(error){
     on_error.value = error
   }
 

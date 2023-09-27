@@ -170,12 +170,10 @@
   function editItem (item) {
     editedIndex.value = desserts.value.indexOf(item)
     editedItem.value = Object.assign({}, item)
-    console.log(editedItem.value)
     dialog.value = true
   }
 
   function deleteItem (item) {
-
     editedIndex.value = desserts.value.indexOf(item)
     editedItem.value = Object.assign({}, item)
     dialogDelete.value = true
@@ -218,12 +216,8 @@
     try {
       let apiResponse;
       if(isEditing){
-
-      //   if(desserts.value[editedIndex.value].name !== editItem.value.name){
-      //     apiResponse = await apiFunction(editedItem.value.id, payload)
-      //   }
-      //   const removedRoles = desserts.value[editedIndex.value].roles.filter((role) => !editedItem.value.roles.includes(role));
-      //   const addedRoles = editedItem.value.roles.filter((role) => !desserts.value[editedIndex.value].roles.includes(role));
+      apiResponse = await apiFunction(editedItem.value.id, apiPayload)
+      
       } else {
         apiResponse = await apiFunction(apiPayload);
       }
@@ -244,20 +238,6 @@
     } catch (e){
       console.log(e);
     }
-
-  //   if (editedIndex.value > -1) {
-      
-
-  //     removedRoles.forEach((role)=>{
-  //       console.log(role.id)
-  //     })
-  //     console.log(removedRoles)
-  //     console.log(addedRoles)
-  //     Object.assign(desserts.value[editedIndex.value], editedItem.value)
-  //   } else {
-  //     desserts.value.push(editedItem.value)
-  //   }
-  //   close()
   }
 
 

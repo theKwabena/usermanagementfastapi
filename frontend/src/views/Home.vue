@@ -138,7 +138,7 @@ const isLoading = ref()
 const on_error = ref('')
 const router = useRouter()
 
-const profile_image = computed(()=>{
+const  profile_image = computed(()=>{
   if(user.profile_img){
 
     return `${baseUrl}/${user.profile_img}`

@@ -68,7 +68,7 @@ class CurrentUserResponse(BaseModel):
     roles: list[RoleResponse]
     groups: list[GroupResponse]
     profile_img: Optional[str]
-    is_superuser: Optional [bool]
+    is_superuser: Optional[bool]
 
     class Config:
         from_attributes = True

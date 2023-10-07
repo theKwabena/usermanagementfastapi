@@ -40,10 +40,11 @@
                       
                         <v-card-actions class="pb-10 mt-5">
                           <v-spacer></v-spacer>
+                          
+                          <v-btn color="" class="mr-2" variant="outlined" @click="dialog=false">Cancel</v-btn>
                           <v-btn elevation="0" rounded="md" class="bg-red"  @click="deleteUser">
                               Delete Account
                           </v-btn>
-                          <v-btn color="" class="mr-2" variant="outlined" @click="dialog=false">Cancel</v-btn>
                           <v-spacer></v-spacer>
                         </v-card-actions>
                       </v-card>
@@ -114,7 +115,7 @@
 </template>
 
 <script setup>
-import {ref, computed} from 'vue'
+import {ref, computed, onMounted} from 'vue'
 import { useAuthStore } from '@/store/auth.store';
 import {useDeleteCurrentUser} from "@/composables/admin/useUserActions.js"
 import {deleteSession} from "@/composables/useSession.js"
@@ -180,7 +181,9 @@ const logout = async () =>{
 // const permissions = computed(()=>{
 
 // })
-
+onMounted(()=>{
+  
+})
 
 </script>
 

@@ -1,8 +1,11 @@
 <template>
     <v-container>
+        <v-snackbar v-model="success" color="primary" location="top" timeout="2000"> 
+        Password changed successful
+        </v-snackbar>
         <v-row class="d-flex justify-center py-10">
             <v-col cols="12" md="6" sm="12" xs="12" order="12">
-                <v-sheet class="py-8 bg-formbg">
+                <v-sheet class="py-8 bg-formbg border-sm rounded-lg">
                     <div class="pa-10 rounded-lg">
                         <div class="">
                             <div class="text-apptext">
@@ -64,7 +67,7 @@
                 </v-sheet>
             </v-col>
             <v-col cols="12" md="4" lg="4" xl="4" order-sm="1" order-md="12">
-                <v-sheet class="bg-formbg">
+                <v-sheet class="bg-formbg border-sm rounded-lg">
                     <div class=" rounded-lg pb-0 position-relative">
                         <v-btn variant="plain" :ripple="false" size="x-large" @click="remove_image" v-if="preview_image" class="position-absolute move-up" id="profile-input" style="top:8%; right:15%">
                             <v-icon icon="mdi-close-circle-outline" color="black" size="large" ></v-icon>
@@ -88,13 +91,15 @@
                                 <p>{{ user.email }}</p>
                         </div>
                         <v-divider/>
-                        <div class="text-center">
+                        <!-- <div class="text-center">
                             <v-btn  class="text-apptext text-subtitle-1 w-100"   size="x-large" variant="text"> Change Email</v-btn>
-                        </div>
-                        <v-divider/>
-                        <div class="text-center">
-                            <v-btn  class="text-apptext text-subtitle-1 w-100 rounded-b-lg" variant="text" size="x-large"> Reset Password</v-btn>
-                        </div>
+                        </div> -->
+                        <change-password @success="success=true"/>
+                        <!-- <v-divider/> -->
+                        <!-- <div class="text-center">
+                            <v-btn  class="text-apptext text-subtitle-1 w-100 rounded-b-lg" variant="text" size="x-large"> Change Password</v-btn>
+                        </div> -->
+                      
                       
                         
                     </div>
@@ -114,7 +119,9 @@
     import { VueTelInput } from 'vue-tel-input';
     import 'vue-tel-input/vue-tel-input.css';
 
+    import ChangePassword from "@/components/ChangePassword.vue"
 
+    const success  = ref(false)
     const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
     const loading = ref(null)
     const authStore = useAuthStore()

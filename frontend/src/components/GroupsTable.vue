@@ -33,10 +33,12 @@
                             variant="outlined"
                         ></v-text-field>
                         </v-col>
-                        <v-col v-if="rolesList">
-                        <h6 class="text-subtitle-1 text-medium-emphasis pl-1"> Roles</h6>
+                        <v-col>
+                          <div v-if="rolesList">
+
+                            <h6 class="text-subtitle-1 text-medium-emphasis pl-1"> Roles</h6>
                             <div class="d-flex flex-column ml-n1">
-                            <v-checkbox
+                              <v-checkbox
                                 v-for="role in rolesList"
                                 :key="role.id" 
                                 v-model="editedItem.roles"
@@ -45,7 +47,8 @@
                                 :value=role
                                 class="my-checkbox"
                             ></v-checkbox> 
-                            </div>
+                          </div>
+                          </div>
                         </v-col>
                     </v-row>
                     </v-container>
@@ -115,7 +118,7 @@
         </template>
         <template v-slot:no-data>
           
-        <p> No Roles Available, Create New Role</p>
+        <p> No Groups Available, Create New Group</p>
       
         </template>
         <template #bottom></template>

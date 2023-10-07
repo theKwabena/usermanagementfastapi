@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('authoptions', {
     data:null, 
     on_error:null,
   }),
+
   getters: {
     loading : (state) => state.isLoading,
     ready : (state) => state.isReady,
@@ -18,12 +19,23 @@ export const useAuthStore = defineStore('authoptions', {
     error :(state) => state.on_error,
    
   },
+
   actions : {
-    async login(payload){
-      this.isLoading = true
+
+    beginAPIState(){
+      this.isLoading = true;
       this.on_error = false;
+      this.isReady = false;
+    },
+
+    onAPIErrorState(e){
       this.isReady = false
-  
+      this.isLoading = false
+      this.on_error = e     
+    },
+
+    async login(payload){
+      this.beginAPIState()
       const params = new URLSearchParams();
       params.append('username', payload.username)
       params.append('password', payload.password)
@@ -35,16 +47,13 @@ export const useAuthStore = defineStore('authoptions', {
             this.data = response.data.user
             Cookies.set('is_Authenticated', true, {expires: 8})
           }).catch(err => {
-            console.log(err)
             this.isReady = false
             this.on_error = err.response ? err.response.data.detail : 'Network error';
           }).finally(resp => {
             this.isLoading = false
          })
         } catch (e){
-          this.isReady = false
-          this.isLoading = false
-          this.on_error = e 
+          this.onAPIErrorState(e)
         }
     },
 
@@ -75,17 +84,25 @@ export const useAuthStore = defineStore('authoptions', {
     },
 
     async getUserProfile(){
-      console.log("Something will")
-      await axios.get(`${baseUrl}/profile`,  {withCredentials: true, credentials:'include'})
+      this.beginAPIState()
+      try {
+        await axios.get(`${baseUrl}/profile`,  {withCredentials: true, credentials:'include'})
       .then(response => {
         this.data = response.data
+      }).catch(err => {
+        this.isReady = false
+        this.on_error = err.response ? err.response.data.detail : 'An error occurred, please try again'
+
+      }).finally(resp => {
+        this.isLoading = false
       })
+      } catch (e){
+        this.onAPIErrorState(e)
+      } 
     },
 
     async logout(){
-      this.isReady= false
-      this.isLoading = true
-      this.on_error = true
+      this.beginAPIState()
   
       try{
         await axios.get(`${baseUrl}/logout`)
@@ -104,9 +121,11 @@ export const useAuthStore = defineStore('authoptions', {
 
 
     async editUser(payload){
+      this.beginAPIState()
       try{
         await axios.put(`${baseUrl}/profile`, payload, {withCredentials: true, credentials:'include'})
         .then(response=>{
+          
           this.isReady = true
           this.data = response.data
         }).catch(err=>{
@@ -149,7 +168,93 @@ export const useAuthStore = defineStore('authoptions', {
         this.isLoading = false
         this.on_error = 'An error occurred, please try again' 
       }
+    },
+
+    async verifyEmali(token){
+      this.beginAPIState()
+      try{
+        await axios.post(`${baseUrl}/profile/verify-email/${token}`, null,  {withCredentials: true, credentials:'include'})
+        .then(response=>{
+          this.isReady = true
+          this.data = response.data
+        })
+        .catch(err=>{
+          this.isReady = false
+          this.on_error = err.response ? err.response.data.detail : 'An error occured, please try again'
+          
+        })
+        .finally(resp=>{
+          this.isLoading = false
+        })
+      } catch (e){
+        // console.log(e)
+        this.isReady = false
+        this.isLoading = false
+        this.on_error = 'An error occured, please try again'
+      }
+    },
+
+    async changePassword(payload){
+      this.beginAPIState()
+
+      try {
+        await axios.put(`${baseUrl}/change-password/`, payload, {withCredentials : true, credentials : 'include'})
+        .then(response=>{
+          this.isReady = true
+        })
+        .catch(err => {
+          this.isReady = false,
+          this.on_error = err.response ? err.response.data.detail : err
+        }) 
+        .finally(resp => {
+          this.isLoading = false
+        })
+      } catch(e){
+        this.onAPIErrorState(e)
+      }
+    },
+
+    async requestPasswordReset(payload){
+      this.beginAPIState()
+      try {
+        await axios.post(`${baseUrl}/password-recovery/`, payload, {withCredentials : true, credentials : 'include'})
+        .then(response=>{
+          this.isReady = true
+         
+        })
+        .catch(err => {
+          this.isReady = false
+          this.on_error = err.response ? err.response.data.detail : err
+        })
+        .finally(resp => {
+          this.isLoading = false
+        })
+      } catch (e){
+        console.log(e)
+        this.onAPIErrorState(e)
+      }
+
+    },
+    async resetPassword (payload){
+      this.beginAPIState()
+      try {
+        await axios.put(`${baseUrl}/reset-password/`, payload, {withCredentials : true, credentials : 'include'})
+        .then(response=>{
+          this.isReady = true
+        })
+        .catch(err => {
+          this.isReady = false
+          this.on_error = err.response ? err.response.data.detail : err
+        })
+        .finally(resp => {
+          this.isLoading = false
+        })
+      } catch (e){
+        this.onAPIErrorState(e)
+      }
+
     }
+    
   
   },
 

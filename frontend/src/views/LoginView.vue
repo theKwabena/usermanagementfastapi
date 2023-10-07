@@ -3,7 +3,11 @@
       <v-layout class="h-100">
         <v-row>
             <v-col cols="12" md="5" class="d-none d-lg-block d-md-block d-xl-block d-xxl-block">
-                <div class="h-100 bg-primary">
+                <div class="h-100 position-relative" style="background: linear-gradient(180deg, #3AAF9F 0%, #246B62 100%);  overflow: hidden;">
+                    <div class="triangle position-absolute"></div>
+                    <p class="h-text position-absolute"> Welcome </p>
+                    <div class="circle position-absolute"></div>
+                    <div class="triangle-mini position-absolute"></div>
                 </div>
             </v-col>
             <v-col cols="12" md="7" class="d-flex justify-center align-center">
@@ -54,7 +58,14 @@
                         :error-messages="v$.password.$errors.map(e => e.$message)"
                         @click:append-inner="visible = !visible"
                     ></v-text-field>
-                    <p class="text-center text-apptext text-decoration-underline py-4"> Forgot your password?</p>
+                    <div class="d-flex justify-center align-center">
+                        <v-btn 
+                        :to="{'name' : 'forgot-password'}"
+                        variant="text"  
+                        class="text-center text-apptext text-decoration-underline  text-none text-subtitle-1"> 
+                        Forgot your password?
+                    </v-btn>
+                    </div>
                     <div class="w-100">
                         <v-btn  elevation="0" class="bg-primary w-100" size="large" @click="login" :loading="loading">
                             Login
@@ -177,5 +188,50 @@ const callback = async (response) =>{
 }
 .log-width{
     width: 50%
+}
+.v-btn{
+  opacity: 1
+}
+
+.triangle{
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 500px;
+  height:500px;
+  transform: rotate(-101.69deg);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  left: 50%;
+  bottom: 60%;
+}
+
+.circle{
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 100px;
+  height:100px;
+  transform: rotate(-101.69deg);
+  clip-path: circle(50% at 50% 50%);
+  left: 30%;
+  bottom: 20%;
+}
+
+
+.h-text{
+    color: #FFF;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+    top: 40%;
+    left: 20%;
+
+}
+
+.triangle-mini{
+  background-color: rgba(255, 255, 255, 0.1);
+  width: 100px;
+  height:100px;
+  transform: rotate(-90.69deg);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  left: 85%;
+  bottom: 5%;
 }
 </style>

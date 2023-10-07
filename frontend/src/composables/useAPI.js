@@ -29,6 +29,7 @@ export async function editCurrentUser(payload) {
     return axios.put(`${baseUrl}/profile/`, payload, config);
 }
 
+
 //Permissions-Role
 export async function createRole(payload){
     return axios.post(`${baseUrl}/admin/roles`, payload, config)

@@ -2,8 +2,11 @@
     <v-layout class="h-100">
       <v-row>
           <v-col cols="12" md="5" class="d-none d-lg-block d-md-block d-xl-block d-xxl-block">
-              <div class="h-100 bg-primary">
-              </div>
+            <div class="h-100 position-relative d-flex justify-center align-center" style="background: linear-gradient(180deg, #3AAF9F 0%, #246B62 100%);  overflow: hidden;">
+                <div class="w-75 d-flex">
+                    <p class="h-text">Get Started by Signing Up</p>
+                </div>
+            </div>
           </v-col>
           <v-col cols="12" md="7" class="d-flex justify-center align-center">
           <div class="">
@@ -322,5 +325,12 @@ const externalAuth = async (response)=>{
   
 }
 
+.h-text{
+    color: #FFF;
+    font-size: 64px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
 
 </style>

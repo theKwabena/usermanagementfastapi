@@ -39,8 +39,24 @@ const routes = [
         path : '/register',
         name : 'register',
         component : ()=> import("@/views/RegisterView.vue")
+      },
 
+      {
+        path : '/verify-email/:email_token/',
+        name : 'verify-email',
+        component : ()=> import("@/views/VerifyEmail.vue")
+      },
 
+      {
+        path : '/forgot-password',
+        name : 'forgot-password',
+        component : ()=> import("@/views/ForgotPasswordView.vue")
+      },
+
+      {
+        path: '/reset-password/:email_token',
+        name : 'reset-password',
+        component : ()=> import("@/views/ResetPasswordView.vue")
       }
     ],
   },
@@ -118,6 +134,9 @@ router.beforeEach(async (to, from, next)=>{
     else {
       if(!user){
         await authStore.getUserProfile()
+        if(!authStore.ready){
+          return next({path : '/login'})
+        }
         // if (!user){
         //   return next({path: '/login'})
         // }

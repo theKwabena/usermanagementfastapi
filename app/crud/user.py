@@ -51,4 +51,11 @@ class UserRepo(CRUDBase[User, UserCreate, UserUpdate]):
         db.refresh(user)
         return user
 
+    def verify_email(self, db:Session, *, user_in:User):
+        user_in_db = self.get(db, user_in.id)
+        user_in_db.email_verified = True
+        db.commit()
+        db.refresh(user_in_db)
+        return user_in_db
+
 user = UserRepo(User)

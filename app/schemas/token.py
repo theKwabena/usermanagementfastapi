@@ -13,3 +13,6 @@ class SignInResponse(BaseModel):
 
 class TokenPayload(BaseModel):
     sub: Optional[str] = None
+
+class RequestToken(BaseModel):
+    token : str

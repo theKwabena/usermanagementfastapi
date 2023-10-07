@@ -16,9 +16,9 @@ def init() -> None:
     init_db(db)
 
 def main() -> None:
-    logger.info("Creating initial data")
+    logger.info("Starting initial data process...")
     init()
-    logger.info("Initial data created")
+    logger.info("Initial data process finished.")
 
 
 if __name__ == "__main__":

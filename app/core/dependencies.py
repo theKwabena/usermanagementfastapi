@@ -17,7 +17,7 @@ from jose import jwt
 from pydantic import ValidationError
 from app.schemas.token import TokenPayload
 
-from .utils import OAuth2PasswordBearerWithCookie
+from .security import OAuth2PasswordBearerWithCookie
 
 reuseable_oauth = OAuth2PasswordBearerWithCookie(
     tokenUrl="/login/access-token"

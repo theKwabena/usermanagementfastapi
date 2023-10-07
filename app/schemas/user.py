@@ -23,6 +23,10 @@ class UserCreate(BaseModel):
     auth_identity_provider: Optional[str] = None
 
 
+class ResetPassword(BaseModel):
+    email: EmailStr
+
+
 class SignUpResponse(UserCreate):
     pass
 
@@ -60,6 +64,16 @@ class UserUpdate(BaseModel):
     phone_number: Optional[str] = None
 
 
+class UserResetPassword(BaseModel):
+    token: str
+    new_password: str
+
+
+class UserChangePassword(BaseModel):
+    old_password: str
+    new_password: str
+
+
 class CurrentUserResponse(BaseModel):
     first_name: str
     last_name: str
@@ -69,6 +83,7 @@ class CurrentUserResponse(BaseModel):
     groups: list[GroupResponse]
     profile_img: Optional[str]
     is_superuser: Optional[bool]
+    email_verified: Optional[bool]
 
     class Config:
         from_attributes = True

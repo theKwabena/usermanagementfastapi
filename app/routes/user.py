@@ -17,7 +17,8 @@ router = APIRouter(tags=["User"], prefix="/users")
 
 @router.get("/", status_code=status.HTTP_200_OK,
             response_model=list[UserResponse],
-            dependencies=[Depends(PermissionChecker([admin_list, admin_edit, admin_delete, admin_create]))])
+            # dependencies=[Depends(PermissionChecker([admin_list, admin_edit, admin_delete, admin_create]))]
+            )
 def users(database: Session = Depends(get_db)):
     return user.get_multi(db=database, skip=0, limit=10)
 

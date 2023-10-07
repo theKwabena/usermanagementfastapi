@@ -8,7 +8,7 @@ python -m app.backend_pre_start
 echo "Applying migrations..."
 alembic upgrade head
 
-echo "Seeding database..."
+echo " database..."
 python -m app.initial_data
 
 echo "Starting FastAPI server..."

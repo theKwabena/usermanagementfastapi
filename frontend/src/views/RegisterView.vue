@@ -1,4 +1,4 @@
-<template>
+git <template>
     <v-layout class="h-100">
       <v-row>
           <v-col cols="12" md="5" class="d-none d-lg-block d-md-block d-xl-block d-xxl-block">
@@ -11,12 +11,12 @@
           <v-col cols="12" md="7" class="d-flex justify-center align-center">
           <div class="">
               <div class="mb-4 px-16 mx-8">
-                  <h4 class="letter-spacing text-primary " >Register an  account</h4> 
+                  <h4 class="letter-spacing text-primary " >Register an  account</h4>
               </div>
 
               <div class="mb-6 w-100 d-flex flex-column justify-center align-center">
                 <GoogleLogin
-                 :callback="externalAuth" 
+                 :callback="externalAuth"
                  :buttonConfig="btn_cnfig"
                  />
               </div>
@@ -24,14 +24,14 @@
               <div class="w-100 d-flex align-center justify-center">
                   <p class="text-center mb-n3 bg-white px-8" style="z-index: 200;">OR</p>
               </div>
-              <v-divider/> 
+              <v-divider/>
 
               <div class="mb-12 mt-6">
                 <v-row>
                     <v-col cols="6">
                         <h6 class="text-subtitle-1 text-medium-emphasis">First name</h6>
-                        <v-text-field 
-                            density="compact"  
+                        <v-text-field
+                            density="compact"
                             variant="outlined"
                             placeholder="Enter first name"
                             v-model="user.first_name"
@@ -41,8 +41,8 @@
                     </v-col>
                     <v-col cols="6">
                         <h6 class="text-subtitle-1 text-medium-emphasis">Last name</h6>
-                        <v-text-field 
-                            density="compact"  
+                        <v-text-field
+                            density="compact"
                             variant="outlined"
                             placeholder="Enter last name"
                             v-model="user.last_name"
@@ -62,7 +62,7 @@
                             prepend-inner-icon="mdi-email"
                             variant="outlined"
                             :error-messages="v$.email.$errors.map(e => e.$message)"
-                            
+
                         ></v-text-field>
                     </v-col>
                 </v-row>
@@ -110,9 +110,9 @@
                     </v-col>
                 </v-row>
 
-                
 
-                 
+
+
                   <p class="text-center text-apptext text-decoration-underline py-4"> Forgot your password?</p>
                   <div class="w-100">
                       <v-btn  elevation="0" class="bg-primary w-100" size="large" @click="register" :loading="loading">
@@ -120,15 +120,15 @@
                       </v-btn>
                   </div>
 
-                  
+
               </div>
           </div>
-      
+
           </v-col>
 
-          
+
       </v-row>
-      
+
 
     </v-layout>
 </template>
@@ -154,7 +154,7 @@ const btn_cnfig = {
     size: "large",
     width  : "700",
     text : 'signup_with',
-    logo_alignment : 'center'   
+    logo_alignment : 'center'
 }
 const user = reactive({
     first_name : '',
@@ -183,16 +183,16 @@ const handleValidation = (phoneObject) => {
 const password1Ref = computed(() => user.password);
 const password2Ref = computed(() => user.confirm_password);
 const rules = {
-    first_name: { 
+    first_name: {
         required: helpers.withMessage('First name cannot be empty', required),
         minLength : minLength(2)
      },
-    last_name: { 
+    last_name: {
         required : helpers.withMessage('Last name cannot be empty', required),
         minLength : minLength(2)
     },
     email : {
-        required : helpers.withMessage("Please enter email", required), 
+        required : helpers.withMessage("Please enter email", required),
         email},
     password : {
         required : helpers.withMessage("Please enter password", required),
@@ -212,9 +212,6 @@ const rules = {
 const v$ = useVuelidate(rules, user, {$externalResults})
 
 const authStore = useAuthStore()
-
-
-
 
 async function register(){
     loading.value = true
@@ -252,14 +249,14 @@ const externalAuth = async (response)=>{
     const userData = decodeCredential(response.credential)
     console.log(userData)
     const last_name = userData.family_name ? userData.family_name : userData.given_name
-    
+
     const payload = {
         first_name : userData.given_name,
         last_name : last_name,
         email : userData.email,
         password : userData.sub,
         email_verified : userData.email_verified,
-        auth_identity_provider : 'google' 
+        auth_identity_provider : 'google'
     }
 
     await authStore.register(payload)
@@ -270,7 +267,7 @@ const externalAuth = async (response)=>{
             loading.value = false
             router.push({name : 'home'})
         }
-        
+
     }
 
     if(authStore.error){
@@ -279,7 +276,7 @@ const externalAuth = async (response)=>{
 
     }
 
-    
+
 }
 
 
@@ -322,7 +319,7 @@ const externalAuth = async (response)=>{
 .v-field__outline {
   --v-field-border-width: 0.5px;
   --v-field-border-opacity: 0.38;
-  
+
 }
 
 .h-text{

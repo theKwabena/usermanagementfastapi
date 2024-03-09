@@ -33,15 +33,3 @@ export const usePermissions = (permission) => {
 export const useSuperUser = ()=>{
     return currentUser.is_superuser
 }
-// Usage of composable functions
-
-// export const usePermissions = (permission) => {
-   
-//     const hasRoleInRoles = currentUser.roles.some((role) => role.name === permission);
-//     const hasRoleInGroups = currentUser.groups.some((group) =>
-//         group.roles.some((role) => role.name === permission)
-//     );
-//     const isSuperUser = currentUser.is_superuser;
-
-//     return hasRoleInRoles || hasRoleInGroups || isSuperUser;
-// };

@@ -648,9 +648,10 @@
   }
 
   async function save() {
+    console.log('saving')
     v$.value.$clearExternalResults();
 
-    if (!(await v$.value.$validate())) return;
+    // if (!(await v$.value.$validate())) return;
 
     const isEditing = editedIndex.value > -1;
     const apiFunction = isEditing ? useEditUser : useCreateUser;

@@ -173,7 +173,7 @@ export const useAuthStore = defineStore('authoptions', {
     async verifyEmali(token){
       this.beginAPIState()
       try{
-        await axios.post(`${baseUrl}/profile/verify-email/${token}`, null,  {withCredentials: true, credentials:'include'})
+        await axios.post(`${baseUrl}/profile/verify-email/`, {token},  {withCredentials: true, credentials:'include'})
         .then(response=>{
           this.isReady = true
           this.data = response.data

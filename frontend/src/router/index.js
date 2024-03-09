@@ -4,7 +4,7 @@ import { useAuthStore } from '@/store/auth.store'
 
 import { AdminRoute  } from './permissions'
 import { loadGroup } from './fetchData'
-import Cookies from 'js-cookie'
+import Cookies from 'js-cookie' 
 import { useUserStore } from '@/store/user.store'
 
 const routes = [

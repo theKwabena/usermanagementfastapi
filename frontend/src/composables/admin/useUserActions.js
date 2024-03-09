@@ -9,7 +9,7 @@ const baseUrl = `${import.meta.env.VITE_BACKEND_API_URL}`;
 
 
 export async function useCreateUser(payload) {
-    const error = ref(null);
+    const error = ref(null); 
     const success = ref(null);
     const loading = ref(false);
     const user = ref(null);

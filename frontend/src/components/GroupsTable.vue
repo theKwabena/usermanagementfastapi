@@ -252,7 +252,6 @@ async function save () {
  
     let apiResponse;
     if(isEditing){
-
       isLoading.value = true
       const removedRoles = groups.value[editedIndex.value].roles.filter((role) => !editedItem.value.roles.includes(role));
       const addedRoles = editedItem.value.roles.filter((role) => !groups.value[editedIndex.value].roles.includes(role));

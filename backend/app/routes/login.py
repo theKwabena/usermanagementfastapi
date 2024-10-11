@@ -50,40 +50,13 @@ def login_access_token(response: Response, db: Session = Depends(get_db),
                         value=f"Bearer {access_token}",
                         samesite='lax',
                         expires=60 * 60 * 8,
-                        httponly=True)  # set HttpOnly cookie in response
+                        httponly=True)
     return {
-        # "access_token": access_token,
-        # "refresh_token": create_refresh_token(user_in_db.email, expires_delta=access_token_expires),
         "user": user_in_db
     }
 
 
-@router.get('/profile', response_model=CurrentUserResponse)
-def get_current_user(
-        user: User = Depends(get_current_active_user),
-        db: Session = Depends(get_db),
-):
-    return user
-
-
-@router.delete('/profile', status_code=status.HTTP_204_NO_CONTENT)
-def delete_current_user(
-        current_user=Depends(get_current_active_user),
-        db: Session = Depends(get_db)
-):
-    return user.remove(db=db, id=current_user.id)
-
-
-@router.put('/profile', response_model=CurrentUserResponse)
-def update_current_user(
-        user_update: UserUpdate,
-        current_user=Depends(get_current_active_user),
-        db: Session = Depends(get_db)
-):
-    return user.update(db=db, db_obj=current_user, obj_in=user_update)
-
-
-@router.post('/profile', response_model=CurrentUserResponse)
+@router.post('/', response_model=CurrentUserResponse, status_code=status.HTTP_200_OK)
 async def update_profile_picture(file: UploadFile = File(...),
                                  database: Session = Depends(get_db),
                                  user_in: User = Depends(get_current_active_user)):
@@ -91,19 +64,12 @@ async def update_profile_picture(file: UploadFile = File(...),
     return user.save_profile_picture(db=database, image_url=image_url, user_in=user_in)
 
 
-@router.get("/logout")
-def logout(response: Response):
-    response.delete_cookie(key="access_token")
-    return {'status': 'success'}
-
-
-@router.post('/profile/verify-email/', response_model=CurrentUserResponse)
-def verify_email(data: RequestToken, db: Session = Depends(get_db),
-                 current_user: User = Depends(get_current_active_user)):
+@router.post('/verify-email/', response_model=CurrentUserResponse, status_code=status.HTTP_200_OK)
+def verify_user_email(data: RequestToken, db: Session = Depends(get_db),
+                      current_user: User = Depends(get_current_active_user)):
     user_email = verify_user_token(data.token)
     if not user_email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Please provide an email")
-    print(user_email)
     if not user_email == current_user.email:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="The email provided does not match user's email")
@@ -169,3 +135,34 @@ def change_password(
     db.commit()
     db.refresh(current_user)
     return {'status': 'success'}
+
+
+@router.get("/logout")
+def logout(response: Response):
+    response.delete_cookie(key="access_token")
+    return {'status': 'success'}
+
+
+@router.get('/profile', response_model=CurrentUserResponse)
+def get_current_user(
+        user: User = Depends(get_current_active_user),
+        db: Session = Depends(get_db),
+):
+    return user
+
+
+@router.delete('/profile', status_code=status.HTTP_204_NO_CONTENT)
+def delete_current_user(
+        current_user=Depends(get_current_active_user),
+        db: Session = Depends(get_db)
+):
+    return user.remove(db=db, id=current_user.id)
+
+
+@router.put('/profile', response_model=CurrentUserResponse)
+def update_current_user(
+        user_update: UserUpdate,
+        current_user=Depends(get_current_active_user),
+        db: Session = Depends(get_db)
+):
+    return user.update(db=db, db_obj=current_user, obj_in=user_update)

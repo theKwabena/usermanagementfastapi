@@ -25,11 +25,13 @@ reuseable_oauth = OAuth2PasswordBearerWithCookie(
 
 
 def get_db() -> Generator:
+    db = None
     try:
         db = SessionLocal()
         yield db
     finally:
-        db.close()
+        if db is not None:
+            db.close()
 
 
 def get_current_user(db: Session = Depends(get_db), token: str = Depends(reuseable_oauth)) -> User:

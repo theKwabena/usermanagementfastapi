@@ -1,7 +1,0 @@
-POSTGRES_SERVER=db
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=umanager123
-POSTGRES_DB=umanager
-SQL_ALCHEMY_DATABASE_URI=postgresql://postgres:umanager123@db:5432/umanager
-FIRST_ADMIN=admin@umanager.com
-FIRST_ADMIN_PASSWORD=1234

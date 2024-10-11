@@ -30,8 +30,8 @@ conf = ConnectionConfig(
 async def send_email(background_tasks: BackgroundTasks, subject: str, email_to: str, body: dict, template: str):
     message = MessageSchema(
         subject=subject,
-        recipients=[email_to],
         template_body=body,
+        recipients=[email_to],
         subtype=MessageType.html,
     )
     fm = FastMail(conf)

@@ -137,9 +137,6 @@ router.beforeEach(async (to, from, next)=>{
         if(!authStore.ready){
           return next({path : '/login'})
         }
-        // if (!user){
-        //   return next({path: '/login'})
-        // }
        
       }
     }
